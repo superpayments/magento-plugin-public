@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <!--        <script src="Superpayments_SuperPayment::js/view/payment/quote-listener.js"/>-->
+        <css src="Superpayments_SuperPayment::css/Superpayments.css"/>
+    </head>
+    <body>
+        <referenceContainer name="before.body.end">
+            <block class="Magento\Framework\View\Element\Template" name="superpayments.confirmation.payment.js"
+                   template="Superpayments_SuperPayment::payment/payment-js.phtml" after="-"
+                   ifconfig="payment/super_payment_gateway/active">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Superpayments\SuperPayment\ViewModel\PaymentConfirmation
+                    </argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

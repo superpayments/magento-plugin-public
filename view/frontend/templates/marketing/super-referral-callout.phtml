@@ -1,0 +1,12 @@
+<?php
+/**@var Magento\Framework\View\Element\Template $block */
+/**@var Superpayments\SuperPayment\ViewModel\ReferralBanner $viewModel */
+$viewModel = $block->getData('view_model');
+$banner = $viewModel->getConfirmationPageBanner();
+if ($banner && !$viewModel->isSuperPaymentOrder()) {
+?>
+    <div class="super-container super-referral-container">
+        <super-referral-callout></super-referral-callout>
+    </div>
+    <div style="padding-bottom: 20px"></div>
+<?php } ?>

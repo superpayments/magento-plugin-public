@@ -1,0 +1,56 @@
+<?php
+/**@var Magento\Framework\View\Element\Template $block */
+/**@var Superpayments\SuperPayment\ViewModel\MarketingBanner $viewModel */
+/**@var Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
+$viewModel = $block->getData('view_model');
+$bannerMode = $viewModel->getBannerMode();
+$isHomePage = $viewModel->getIsHomePage();
+$isCheckout = $viewModel->getIsCheckout();
+$bannerData = [];
+
+if ($bannerMode == "allpages" && $isCheckout) {
+    $bannerData = $viewModel->getWebComponentData('checkout', true);
+}else if (($bannerMode == "allpages" && !$isCheckout) || ($bannerMode == "homepage" && $isHomePage)){
+    $bannerData = $viewModel->getWebComponentData();
+}
+
+if (!empty($bannerData)) {
+    if (!$viewModel->shouldUseSecureRenderer()) {
+?>
+    <script>
+        try {
+            require(['jquery', 'jquery/ui'], function($){
+                $(document).ready( function() {
+                    $("#top-super-banner").slideDown('slow');
+                });
+            });
+        } catch (error) {
+            window.addEventListener('load', function () {
+                document.getElementById("top-super-banner").style.display = "block";
+            });
+        }
+    </script>
+<?php
+    } else {
+
+    $script = <<<SCRIPT
+    try {
+        require(['jquery', 'jquery/ui'], function($){
+            $(document).ready( function() {
+                $("#top-super-banner").slideDown('slow');
+            });
+        });
+    } catch (error) {
+        window.addEventListener('load', function () {
+            document.getElementById("top-super-banner").style.display = "block";
+        });
+    }
+SCRIPT;
+
+    echo $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false);
+
+    }
+
+    echo '<div id="top-super-banner" style="display: none"><super-banner cartAmount="' . $bannerData['minorUnitAmount'] . '" page="' .  $bannerData['page'] . '" cartId="' . $bannerData['cart']['id'] . '" cartItems="' . $viewModel->cartItemsEncode($bannerData['cart']['items']) . '"></super-banner></div>';
+}
+?>

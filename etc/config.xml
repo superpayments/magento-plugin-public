@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <super_payment_gateway>
+                <version>2.6.4</version>
+                <active>0</active>
+                <environment>production</environment>
+                <api_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <confirmation_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <sandbox_api_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <sandbox_confirmation_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <title>Paid with Super Payments</title>
+                <banner_mode>allpages</banner_mode>
+                <plp_banner>1</plp_banner>
+                <pdp_banner>1</pdp_banner>
+                <cart_banner>1</cart_banner>
+                <confirmation_page_banner>1</confirmation_page_banner>
+                <confirmation_email_banner>0</confirmation_email_banner>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_authorize_vault>0</can_authorize_vault>
+                <can_capture_vault>0</can_capture_vault>
+                <can_use_for_multishipping>0</can_use_for_multishipping>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_void>0</can_void>
+                <can_cancel>0</can_cancel>
+                <payment_action>authorize</payment_action>
+                <order_status>pending_payment</order_status>
+                <currency>GBP</currency>
+                <allowspecific>0</allowspecific>
+                <sort_order>1</sort_order>
+                <debug>0</debug>
+                <use_https>1</use_https>
+                <gateway_timeout>15</gateway_timeout>
+                <model>SuperpaymentsFacade</model>
+                <api_url_base><![CDATA[https://api.superpayments.com]]></api_url_base>
+                <api_url_sandbox_base><![CDATA[https://api.test.superpayments.com]]></api_url_sandbox_base>
+                <cdn_url><![CDATA[https://cdn.superpayments.com/js/super.js]]></cdn_url>
+                <cdn_url_sandbox><![CDATA[https://cdn.superpayments.com/js/test/super.js]]></cdn_url_sandbox>
+                <payment_js_url><![CDATA[https://cdn.superpayments.com/js/payment.js]]></payment_js_url>
+                <payment_js_url_sandbox><![CDATA[https://cdn.superpayments.com/js/test/payment.js]]></payment_js_url_sandbox>
+                <force_email_send>0</force_email_send>
+                <auto_register_capture>1</auto_register_capture>
+                <default_selected>1</default_selected>
+                <flow_type>express</flow_type>
+                <handoff_success_route><![CDATA[checkout/onepage/success]]></handoff_success_route>
+                <confirmation_page_web_component>1</confirmation_page_web_component>
+                <graphql>0</graphql>
+                <graphql_success_url />
+                <graphql_cancel_url />
+                <graphql_failure_url />
+                <publishable_key/>
+                <sandbox_publishable_key/>
+                <integration_id/>
+                <sandbox_integration_id/>
+                <brand_id/>
+                <sandbox_brand_id/>
+            </super_payment_gateway>
+        </payment>
+    </default>
+</config>

@@ -1,0 +1,72 @@
+type StoreConfig {
+    super_payment_gateway_enabled: Boolean @doc(description: "SuperPayments Payment Method Enabled?")
+    super_payment_gateway_environment: String @doc(description: "SuperPayments Sandbox/Production Mode")
+    super_payment_gateway_title: String @doc(description: "SuperPayments Payment Method Title")
+    super_payment_gateway_banner_mode: String @doc(description: "SuperPayments Banner Mode")
+    super_payment_gateway_plp_banner: Boolean @doc(description: "SuperPayments Show Banner in Product Listings Page")
+    super_payment_gateway_pdp_banner: Boolean @doc(description: "SuperPayments Show Banner in Product Display Page")
+    super_payment_gateway_cart_banner: Boolean @doc(description: "SuperPayments Show Banner in Cart Page")
+    super_payment_gateway_confirmation_page_banner: Boolean @doc(description: "SuperPayments Show Confirmation Page Referral Banner")
+    super_payment_gateway_confirmation_email_banner: Boolean @doc(description: "SuperPayments Show Confirmation Email Referral Banner")
+    super_payment_gateway_currency: String @doc(description: "SuperPayments Currency")
+    super_payment_gateway_default_selected: Boolean @doc(description: "SuperPayments Is Default Selected")
+    super_payment_gateway_graphql_success_url: String @doc(description: "SuperPayments GraphQL Success Callback URL")
+    super_payment_gateway_graphql_cancel_url: String @doc(description: "SuperPayments GraphQL Cancel Callback URL")
+    super_payment_gateway_graphql_failure_url: String @doc(description: "SuperPayments GraphQL Failure Callback URL")
+    super_payment_gateway_flow_type: String @doc(description: "SuperPayments Flow Type")
+    super_payment_gateway_handoff_success_route: String @doc(description: "SuperPayments Handoff Success Route")
+    super_payment_gateway_confirmation_page_web_component: String @doc(description: "SuperPayments Show Confirmation Page Web Banner")
+    super_payment_gateway_cdn_url: String @doc(description: "SuperPayments CDN Production URL")
+    super_payment_gateway_cdn_url_sandbox: String @doc(description: "SuperPayments CDN Sandbox URL")
+    super_payment_gateway_payment_js_url: String @doc(description: "SuperPayments Payment JS URL")
+    super_payment_gateway_payment_js_url_sandbox: String @doc(description: "SuperPayments Payment JS Sandbox URL")
+}
+
+type Query {
+    superpaymentsOffer(input: SuperPaymentsOfferInput!): SuperPaymentsContentOutput @resolver(class: "Superpayments\\SuperPayment\\Model\\Resolver\\OfferResolver") @doc(description:"SuperPayments Get Offer Content")
+    superpaymentsReferral(input: SuperPaymentsReferralInput!): SuperPaymentsContentOutput @resolver(class: "Superpayments\\SuperPayment\\Model\\Resolver\\ReferralResolver") @doc(description:"SuperPayments Get Referral Content")
+}
+
+type Mutation {
+    superpaymentsPaymentRedirectUrl(input: SuperPaymentsRedirectUrlInput!): SuperPaymentsPlaceOrderOutput @resolver(class: "Superpayments\\SuperPayment\\Model\\Resolver\\RedirectUrlResolver") @doc(description:"SuperPayments Get Payment Redirect URL. We recommend using placeOrder mutation for this instead.")
+    superpaymentsResponseCallback(input: SuperPaymentsResponseCallbackInput!): SuperPaymentsResponseCallbackOutput @resolver(class: "Superpayments\\SuperPayment\\Model\\Resolver\\CallbackResolver") @doc(description:"SuperPayments Payment Response Callback")
+}
+
+type PlaceOrderOutput {
+    superpayments: SuperPaymentsPlaceOrderOutput @resolver(class: "Superpayments\\SuperPayment\\Model\\Resolver\\PlaceOrderOutputResolver")
+}
+
+input SuperPaymentsRedirectUrlInput {
+    order_number: String! @doc(description: "Order number.")
+}
+
+input SuperPaymentsReferralInput {
+    order_number: String! @doc(description: "Order number.")
+}
+
+type SuperPaymentsPlaceOrderOutput {
+    redirect_url: String! @doc(description:"Payment Gateway Redirect URL")
+}
+
+input SuperPaymentsResponseCallbackInput {
+    order_number: String! @doc(description: "Order number.")
+    callback_status: SuperPaymentsCallbackStatusEnum! @doc(description: "Callback status.")
+}
+
+enum SuperPaymentsCallbackStatusEnum {
+    SUCCESS @doc(description:"Successful Payment")
+    FAILURE @doc(description:"Failed Payment")
+    CANCEL @doc(description:"Canceled Payment")
+}
+
+type SuperPaymentsResponseCallbackOutput {
+    success: Boolean!
+}
+
+input SuperPaymentsOfferInput {
+    cart_id: String! @doc(description: "Quote ID")
+}
+
+type SuperPaymentsContentOutput {
+    content: String
+}

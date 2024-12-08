@@ -1,0 +1,16 @@
+<?php
+/**@var Magento\Framework\View\Element\Template $block */
+/**@var Superpayments\SuperPayment\ViewModel\MarketingBanner $viewModel */
+$viewModel = $block->getData('view_model');
+if ($viewModel->getCartBanner()) {
+    $bannerData = $viewModel->getWebComponentData('cart', true);
+?>
+    <div class="super-container">
+        <style>
+            .super-container div[style] {
+                font-size: 12px;
+            }
+        </style>
+        <?php echo '<super-cart-callout cartAmount="' . $bannerData['minorUnitAmount'] . '" page="' .  $bannerData['page'] . '" cartId="' . $bannerData['cart']['id'] . '" cartItems="' . $viewModel->cartItemsEncode($bannerData['cart']['items']) . '"></super-cart-callout>'; ?>
+    </div>
+<?php } ?>

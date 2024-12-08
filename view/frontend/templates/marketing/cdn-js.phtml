@@ -1,0 +1,61 @@
+<?php
+/**@var Magento\Framework\View\Element\Template $block */
+/**@var Superpayments\SuperPayment\ViewModel\MarketingBanner $viewModel */
+/**@var Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
+$viewModel = $block->getData('view_model');
+
+if (!$viewModel->shouldUseSecureRenderer()) {
+?>
+
+    <script src="<?php echo $viewModel->getCdnUrl(); ?>"></script>
+    <script>
+        superjs.init(
+            '<?php echo $viewModel->getPublishableKey(); ?>',
+            {
+                "integrationId": "<?php echo $viewModel->getIntegrationId(); ?>",
+                "platform": "magento",
+                "platformVersion": "<?php echo $viewModel->getConfig()->getMagentoVersion() . '-' . $viewModel->getConfig()->getMagentoEdition(); ?>",
+                "superPluginVersion": "<?php echo $viewModel->getConfig()->getModuleVersion(); ?>",
+                "sdkVersion": "<?php echo $viewModel->getConfig()->getModuleVersion(); ?>",
+                "page": "<?php echo $viewModel->getPage(); ?>",
+                "isDebugEnabled": <?php echo ($viewModel->getConfig()->isDebugEnabled() ? 'true' : 'false'); ?>,
+                "currency": "<?php echo $viewModel->getStoreCurrencyCode(); ?>",
+                "enableForCurrencies": ['GBP'],
+            }
+        );
+    </script>
+
+<?php
+} else {
+
+    echo $secureRenderer->renderTag(
+        'script',
+        ['type' => 'text/javascript', 'src' => $viewModel->getCdnUrl()],
+        "",
+        false
+    );
+
+    echo $secureRenderer->renderTag(
+        'script',
+        ['type' => 'text/javascript'],
+        '
+    superjs.init(
+        "' . $viewModel->getPublishableKey() . '",
+        {
+        "integrationId": "' . $viewModel->getIntegrationId() . '",
+        "platform": "magento",
+        "platformVersion": "' . $viewModel->getConfig()->getMagentoVersion() . '-' . $viewModel->getConfig()->getMagentoEdition() . '",
+        "superPluginVersion": "' . $viewModel->getConfig()->getModuleVersion() . '",
+        "sdkVersion": "' . $viewModel->getConfig()->getModuleVersion() . '",
+        "page": "' . $viewModel->getPage() . '",
+        "isDebugEnabled": ' . ($viewModel->getConfig()->isDebugEnabled() ? 'true' : 'false') . ',
+        "currency": "' . $viewModel->getStoreCurrencyCode() . '",
+        "enableForCurrencies": [\'GBP\'],
+        }
+    );
+    ',
+        false
+    );
+
+}
+?>

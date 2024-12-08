@@ -1,0 +1,35 @@
+.super-pay-logo {
+    background: url("https://design.superpayments.com/Super_logo_wordmark-websized-Medium.png") no-repeat 0 0% / 18rem auto;
+    height: 60px;
+    width: auto;
+    padding-left: 20rem;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.super-pay-text span {
+    font-weight: bold !important;
+}
+
+.button-container {
+    float: right;
+}
+
+.super-pay-text {
+    display: inline-block;
+    vertical-align: middle;
+    width: 50%;
+    font-weight: normal;
+}
+
+.section-config.with-button.super-pay-section .config-heading strong {
+    font-weight: normal;
+}
+
+.complex.super-pay-section .button-container {
+    float: right;
+}
+
+.super-pay-section.section-config.active > .admin__collapsible-block + input + fieldset {
+    margin-left: 40px;
+}

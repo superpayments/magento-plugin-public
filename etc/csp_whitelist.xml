@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp/etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="script-src">
+            <values>
+                <!-- Embedded checkout domains-->
+                <value id="superpayments" type="host">*.superpayments.com</value>
+                <value id="stripe-sub" type="host">*.stripe.com</value>
+                <!-- Segment domains -->
+                <value id="segment-com" type="host">segment.com</value>
+                <value id="segment-sub" type="host">*.segment.com</value>
+                <value id="segment-apis" type="host">*.segmentapis.com</value>
+                <!-- Statsig domains -->
+                <value id="statsig-com" type="host">statsig.com</value>
+                <value id="statsig-com-sub" type="host">*.statsig.com</value>
+                <value id="statsigapi-net" type="host">statsigapi.net</value>
+                <value id="statsigapi-sub" type="host">*.statsigapi.net</value>
+                <value id="featuregates-org" type="host">featuregates.org</value>
+                <value id="featuregates-sub" type="host">*.featuregates.org</value>
+                <value id="statsigcdn-com" type="host">statsigcdn.com</value>
+                <value id="statsigcdn-sub" type="host">*.statsigcdn.com</value>
+                <value id="featureassets-org" type="host">featureassets.org</value>
+                <value id="featureassets-sub" type="host">*.featureassets.org</value>
+                <value id="assetsconfigcdn-org" type="host">assetsconfigcdn.org</value>
+                <value id="assetsconfigcdn-sub" type="host">*.assetsconfigcdn.org</value>
+                <value id="prodregistryv2-org" type="host">prodregistryv2.org</value>
+                <value id="prodregistryv2-sub" type="host">*.prodregistryv2.org</value>
+                <!-- SEON domains -->
+                <value id="seon-cdn" type="host">cdn.seondf.com</value>
+                <!-- Trustpilot for confirmation component -->
+                <value id="trustpilot" type="host">*.trustpilot.com</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="superpayments" type="host">*.superpayments.com</value>
+                <value id="stripe-sub" type="host">*.stripe.com</value>
+            </values>
+        </policy>
+        <policy id="frame-ancestors">
+            <values>
+                <value id="superpayments" type="host">*.superpayments.com</value>
+                <value id="stripe-sub" type="host">*.stripe.com</value>
+                <value id="stripe-com" type="host">stripe.com</value>
+            </values>
+        </policy>
+        <policy id="img-src">
+            <values>
+                <value id="superpayments" type="host">*.superpayments.com</value>
+                <value id="stripe-sub" type="host">*.stripe.com</value>
+            </values>
+        </policy>
+        <policy id="connect-src">
+            <values>
+                <!-- Embedded checkout domains-->
+                <value id="superpayments" type="host">*.superpayments.com</value>
+                <value id="stripe-sub" type="host">*.stripe.com</value>
+                <value id="stripe-com" type="host">stripe.com</value>
+                <value id="cognito-eu-west-2" type="host">cognito-idp.eu-west-2.amazonaws.com</value>
+                <!-- Segment domains -->
+                <value id="segment-com" type="host">segment.com</value>
+                <value id="segment-sub" type="host">*.segment.com</value>
+                <value id="segment-apis" type="host">*.segmentapis.com</value>
+                <!-- Statsig domains -->
+                <value id="statsig-com" type="host">statsig.com</value>
+                <value id="statsig-com-sub" type="host">*.statsig.com</value>
+                <value id="statsigapi-net" type="host">statsigapi.net</value>
+                <value id="statsigapi-sub" type="host">*.statsigapi.net</value>
+                <value id="featuregates-org" type="host">featuregates.org</value>
+                <value id="featuregates-sub" type="host">*.featuregates.org</value>
+                <value id="statsigcdn-com" type="host">statsigcdn.com</value>
+                <value id="statsigcdn-sub" type="host">*.statsigcdn.com</value>
+                <value id="featureassets-org" type="host">featureassets.org</value>
+                <value id="featureassets-sub" type="host">*.featureassets.org</value>
+                <value id="assetsconfigcdn-org" type="host">assetsconfigcdn.org</value>
+                <value id="assetsconfigcdn-sub" type="host">*.assetsconfigcdn.org</value>
+                <value id="prodregistryv2-org" type="host">prodregistryv2.org</value>
+                <value id="prodregistryv2-sub" type="host">*.prodregistryv2.org</value>
+                <!-- SEON domains -->
+                <value id="seon-cdn" type="host">cdn.seondf.com</value>
+                <value id="seon-dns" type="host">*.seondnsresolve.com</value>
+                <value id="seon-df" type="host">*.seondfresolver.com</value>
+                <value id="seon-device-inf" type="host">*.deviceinfresolver.com</value>
+                <value id="seon-intel" type="host">*.seonintelligence.com</value>
+                <!-- Trustpilot for confirmation component -->
+                <value id="trustpilot" type="host">*.trustpilot.com</value>
+            </values>
+        </policy>
+        <policy id="font-src">
+            <values>
+                <value id="superpayments" type="host">*.superpayments.com</value>
+                <value id="stripe-sub" type="host">*.stripe.com</value>
+            </values>
+        </policy>
+        <policy id="form-action">
+            <values>
+                <value id="superpayments" type="host">*.superpayments.com</value>
+                <value id="stripe-sub" type="host">*.stripe.com</value>
+            </values>
+        </policy>
+        <policy id="style-src">
+            <values>
+                <value id="superpayments" type="host">*.superpayments.com</value>
+                <value id="stripe-sub" type="host">*.stripe.com</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>

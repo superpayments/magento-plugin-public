@@ -1,0 +1,12 @@
+/* IWD one Step checkout design fix for checkout page*/
+.iwd_opc_wrapper .opc-wrapper .payment-method-title .superpayment_title {
+    line-height: 100%;
+}
+/* Web Component Payment Method Title fix */
+.super-payment-method-title, super-payment-method-title {
+    display: inline-block;
+}
+
+.payment-method-title label .super_payments_logo, #payment-method-option-super_payment_gateway .super_payments_logo {
+    display:none!important;
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\StoreGraphQl\Model\Resolver\Store\StoreConfigDataProvider">
+        <arguments>
+            <argument name="extendedConfigData">
+                <item name="super_payment_gateway_enabled" xsi:type="string">payment/super_payment_gateway/active</item>
+                <item name="super_payment_gateway_environment" xsi:type="string">payment/super_payment_gateway/environment</item>
+                <item name="super_payment_gateway_title" xsi:type="string">payment/super_payment_gateway/title</item>
+                <item name="super_payment_gateway_banner_mode" xsi:type="string">payment/super_payment_gateway/banner_mode</item>
+                <item name="super_payment_gateway_plp_banner" xsi:type="string">payment/super_payment_gateway/plp_banner</item>
+                <item name="super_payment_gateway_pdp_banner" xsi:type="string">payment/super_payment_gateway/pdp_banner</item>
+                <item name="super_payment_gateway_cart_banner" xsi:type="string">payment/super_payment_gateway/cart_banner</item>
+                <item name="super_payment_gateway_confirmation_page_banner" xsi:type="string">payment/super_payment_gateway/confirmation_page_banner</item>
+                <item name="super_payment_gateway_confirmation_email_banner" xsi:type="string">payment/super_payment_gateway/confirmation_email_banner</item>
+                <item name="super_payment_gateway_currency" xsi:type="string">payment/super_payment_gateway/currency</item>
+                <item name="super_payment_gateway_default_selected" xsi:type="string">payment/super_payment_gateway/default_selected</item>
+                <item name="super_payment_gateway_graphql_success_url" xsi:type="string">payment/super_payment_gateway/graphql_success_url</item>
+                <item name="super_payment_gateway_graphql_cancel_url" xsi:type="string">payment/super_payment_gateway/graphql_cancel_url</item>
+                <item name="super_payment_gateway_graphql_failure_url" xsi:type="string">payment/super_payment_gateway/graphql_failure_url</item>
+                <item name="super_payment_gateway_flow_type" xsi:type="string">payment/super_payment_gateway/flow_type</item>
+                <item name="super_payment_gateway_handoff_success_route" xsi:type="string">payment/super_payment_gateway/handoff_success_route</item>
+                <item name="super_payment_gateway_confirmation_page_web_component" xsi:type="string">payment/super_payment_gateway/confirmation_page_web_component</item>
+                <item name="super_payment_gateway_cdn_url" xsi:type="string">payment/super_payment_gateway/cdn_url</item>
+                <item name="super_payment_gateway_cdn_url_sandbox" xsi:type="string">payment/super_payment_gateway/cdn_url_sandbox</item>
+                <item name="super_payment_gateway_payment_js_url" xsi:type="string">payment/super_payment_gateway/payment_js_url</item>
+                <item name="super_payment_gateway_payment_js_url_sandbox" xsi:type="string">payment/super_payment_gateway/payment_js_url_sandbox</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

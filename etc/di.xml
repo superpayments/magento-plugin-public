@@ -1,0 +1,486 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="SuperPaymentsHttpClientLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">Superpayments\SuperPayment\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Superpayments\SuperPayment\Gateway\Http\Client">
+        <arguments>
+            <argument name="logger" xsi:type="object">SuperPaymentsHttpClientLogger</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="SuperpaymentsFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Superpayments\SuperPayment\Gateway\Config\Config::PAYMENT_CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Superpayments\SuperPayment\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">SuperPaymentsValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">SuperPaymentsValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">SuperPaymentsConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Superpayments\SuperPayment\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">SuperPaymentsCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Superpayments\SuperPayment\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">SuperPaymentsAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">SuperPaymentsCaptureCommand</item>
+                <item name="refund" xsi:type="string">SuperPaymentsRefundCommand</item>
+                <item name="create_payment" xsi:type="string">SuperPaymentsCreatePaymentCommand</item>
+                <item name="retrieve_payment" xsi:type="string">SuperPaymentsRetrievePaymentCommand</item>
+                <item name="search_payment" xsi:type="string">SuperPaymentsSearchPaymentCommand</item>
+                <item name="create_offer" xsi:type="string">SuperPaymentsCreateOfferCommand</item>
+                <item name="expire_offer" xsi:type="string">SuperPaymentsExpireOfferCommand</item>
+                <item name="create_referral" xsi:type="string">SuperPaymentsCreateReferralCommand</item>
+                <item name="business_config" xsi:type="string">SuperPaymentsBusinessConfigCommand</item>
+                <item name="order_created" xsi:type="string">SuperPaymentsOrderCreatedCommand</item>
+                <item name="order_status_changed" xsi:type="string">SuperPaymentsOrderStatusChangedCommand</item>
+                <item name="payment_config_changed" xsi:type="string">SuperPaymentsConfigChangedCommand</item>
+                <item name="guest_email_token" xsi:type="string">SuperPaymentsGuestEmailTokenCommand</item>
+                <item name="create_checkout_session" xsi:type="string">SuperPaymentsCreateCheckoutSessionCommand</item>
+                <item name="complete_checkout_session" xsi:type="string">SuperPaymentsCompleteCheckoutSessionCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsAuthorizeCommand" type="Superpayments\SuperPayment\Gateway\Command\AuthorizeCommand">
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCaptureCommand" type="Superpayments\SuperPayment\Gateway\Command\CaptureCommand">
+    </virtualType>
+
+    <virtualType name="SuperPaymentsRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsRefundRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\RefundHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCreatePaymentCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsCreatePaymentRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\CreatePaymentHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsRetrievePaymentCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsRetrievePaymentRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\RetrievePaymentHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsSearchPaymentCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsSearchPaymentRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\SearchPaymentHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCreateOfferCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsCreateOfferRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\CreateOfferHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsExpireOfferCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsExpireOfferRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\ExpireOfferHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCreateReferralCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsCreateReferralRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\CreateReferralHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsBusinessConfigCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsBusinessConfigRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\BusinessConfigHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsGuestEmailTokenCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsGuestEmailTokenRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\GuestEmailTokenHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCreateCheckoutSessionCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsCreateCheckoutSessionRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\CreateCheckoutSessionHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCompleteCheckoutSessionCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsCompleteCheckoutSessionRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\CompleteCheckoutSessionHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsOrderCreatedCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsOrderCreatedRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\CustomEventsHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsOrderStatusChangedCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsOrderStatusChangedRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\CustomEventsHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsConfigChangedCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">SuperPaymentsConfigChangedRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Superpayments\SuperPayment\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Superpayments\SuperPayment\Gateway\Response\CustomEventsHandler</argument>
+            <argument name="validator" xsi:type="object">Superpayments\SuperPayment\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsOrderCreatedRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\OrderCreatedDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsOrderStatusChangedRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\OrderStatusChangedDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsConfigChangedRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\PaymentConfigChangedDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCreatePaymentRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\CreatePaymentDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsRetrievePaymentRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\RetrievePaymentDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsSearchPaymentRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\SearchPaymentDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCreateOfferRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\CreateOfferDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsExpireOfferRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\ExpireOfferDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCreateReferralRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\CreateReferralDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsRefundRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\RefundDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsBusinessConfigRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\BusinessConfigDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsGuestEmailTokenRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\GuestEmailTokenDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCreateCheckoutSessionRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\CreateCheckoutSessionDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SuperPaymentsCompleteCheckoutSessionRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Superpayments\SuperPayment\Gateway\Request\CompleteCheckoutSessionDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\CreatePaymentService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\RetrievePaymentService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\SearchPaymentService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\CreateOfferService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\ExpireOfferService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\CreateReferralService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\BusinessConfigService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\GuestEmailTokenService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\CreateCheckoutSessionService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\CompleteCheckoutSessionService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\OrderCreatedService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\OrderStatusChangedService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Gateway\Service\PaymentConfigChangedService">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">SuperPaymentsCommandPool</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Controller\Payment\Redirect">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\CompleteCheckoutSessionService</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\ViewModel\PaymentConfirmation">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\GuestEmailTokenService</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Controller\Discount\Offerbanner">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\CreateCheckoutSessionService</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Model\Resolver\OfferResolver">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\CreateCheckoutSessionService</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Controller\Discount\Offer">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\CreateOfferService</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Observer\QuoteSubmitBeforeObserver">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\CreateOfferService</argument>
+        </arguments>
+    </type>
+    <type name="Superpayments\SuperPayment\ViewModel\ReferralBanner">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\CreateReferralService</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Model\PaymentUpdate">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\ExpireOfferService</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Observer\SuccessOfferExpire">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\ExpireOfferService</argument>
+        </arguments>
+    </type>
+    <type name="Superpayments\SuperPayment\Model\Resolver\PlaceOrderOutputResolver">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\CompleteCheckoutSessionService</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Model\Resolver\RedirectUrlResolver">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\CompleteCheckoutSessionService</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Model\Resolver\ReferralResolver">
+        <arguments>
+            <argument name="apiService" xsi:type="object">Superpayments\SuperPayment\Gateway\Service\CreateReferralService</argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Sales\Model\ResourceModel\Order">
+        <plugin name="Superpayments_send_order_update" type="Superpayments\SuperPayment\Plugin\AnalyticOrderUpdate" />
+    </type>
+</config>

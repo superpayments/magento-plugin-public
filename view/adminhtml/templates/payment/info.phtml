@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * @var \Magento\Payment\Block\Info $block
+ * @see \Magento\Payment\Block\Info
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$specificInfo = $block->getSpecificInformation();
+$additionalInformation = $block->getInfo()->getAdditionalInformation();
+$paymentTitle = $block->getMethod()->getConfigData('title', $block->getInfo()->getOrder()->getStoreId());
+$paymentMethod = (isset($additionalInformation['payment_method'])) ? $additionalInformation['payment_method'] :  $escaper->escapeHtml($paymentTitle);
+?>
+
+<?= $paymentMethod ?>
+
+<table class="data-table admin__table-secondary">
+    <?php if (isset($additionalInformation['last_transaction_id'])): ?>
+        <tr>
+            <th><?= $escaper->escapeHtml(__('Transaction ID')); ?>:</th>
+            <td><?= $escaper->escapeHtml($additionalInformation['last_transaction_id']); ?></td>
+        </tr>
+    <?php else: ?>
+        <tr>
+            <th><?= $escaper->escapeHtml(__('Transaction ID')); ?>:</th>
+            <td><?= $escaper->escapeHtml(__('Customer has not completed checkout yet.')); ?></td>
+        </tr>
+    <?php endif ?>
+</table>
+
+<?= $block->getChildHtml() ?>

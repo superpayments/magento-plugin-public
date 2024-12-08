@@ -1,0 +1,35 @@
+{
+    "name": "superpayments/superpayment",
+    "description": "SuperPayments Payment for Magento 2",
+    "version": "2.6.4",
+    "type": "magento2-module",
+    "require": {
+        "php": ">=7.4.33",
+        "magento/module-checkout": ">=100",
+        "magento/module-payment": ">=100",
+        "magento/module-sales": ">=100",
+        "magento/module-paypal": ">=100"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Superpayments\\SuperPayment\\": ""
+        }
+    },
+    "support": {
+        "docs": "https://docs.superpayments.com/docs/magento"
+    },
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
+    "authors": [
+        {
+            "name": "Super Payments Limited",
+            "email": "support@superpayments.com",
+            "homepage": "https://business.superpayments.com/"
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+<?php
+/**@var Magento\Framework\View\Element\Template $block */
+/**@var Superpayments\SuperPayment\ViewModel\PaymentConfirmation $viewModel */
+/**@var Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
+$viewModel = $block->getData('view_model');
+
+if (!$viewModel->shouldUseSecureRenderer()) {
+?>
+    <script src="<?php echo $viewModel->getPaymentJsUrl(); ?>"></script>
+<?php
+} else {
+    echo $secureRenderer->renderTag(
+        'script',
+        ['type' => 'text/javascript', 'src' => $viewModel->getPaymentJsUrl()],
+        "",
+        false
+    );
+}
+?>

@@ -1,0 +1,26 @@
+<?php
+/**@var Magento\Framework\View\Element\Template $block */
+/**@var Superpayments\SuperPayment\ViewModel\MarketingBanner $viewModel */
+$viewModel = $block->getData('view_model');
+if ($viewModel->getPdpBanner()) {
+    $product = $block->getProduct();
+    $price = $product->getFinalPrice();
+    if (empty($price)) {
+        $price = $product->getData('final_price') ?? $product->getData(\Magento\Catalog\Api\Data\ProductInterface::PRICE);
+    }
+    $price = $viewModel->getPriceConverter()->minorUnitAmount($price);
+    $bannerData = $viewModel->getWebComponentData('product-detail');
+?>
+    <div style="clear: both;"></div>
+    <div class="super-container">
+        <style>
+            .super-container div[style] {
+                font-size: 13px;
+            }
+            .box-tocart .actions {
+                display: inline !important;
+            }
+        </style>
+        <?php echo '<super-product-callout page="' . $bannerData['page'] . '" cartId="' . $bannerData['cart']['id'] . '" productAmount="' . $price . '" productQuantity="1"></super-product-callout>'; ?>
+    </div>
+<?php } ?>

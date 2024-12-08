@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+ <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+<!--        <script src="Superpayments_SuperPayment::js/view/payment/quote-listener.js"/>-->
+    </head>
+    <body>
+        <referenceContainer name="cart.summary">
+            <block class="Magento\Checkout\Block\Onepage\Link"
+                   name="super_marketing_cart_banner"
+                   template="Superpayments_SuperPayment::marketing/super-cart-callout.phtml"
+                   after="checkout.cart.totals.container"
+                   ifconfig="payment/super_payment_gateway/active">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Superpayments\SuperPayment\ViewModel\MarketingBanner
+                    </argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+ </page>

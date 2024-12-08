@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="quote">
+        <column xsi:type="text"
+                name="offer_id"
+                nullable="true"
+                comment="Offer Id"
+        />
+    </table>
+    <table name="sales_order">
+        <column xsi:type="text"
+                name="offer_id"
+                nullable="true"
+                comment="Offer Id"
+        />
+    </table>
+
+    <table name="superpayments_session" resource="default" engine="innodb" comment="SuperPayments Session">
+        <column name="entity_id" xsi:type="int" nullable="false" identity="true" unsigned="true" comment="Entity ID"/>
+        <column name="quote_id" xsi:type="int" nullable="false" unsigned="true" comment="Quote ID"/>
+        <column name="checkout_session_id" xsi:type="varchar" nullable="true" length="255" comment="Checkout Session ID"/>
+        <column name="created_at" xsi:type="timestamp" nullable="false" on_update="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
+        <column name="updated_at" xsi:type="timestamp" nullable="false" on_update="true" default="CURRENT_TIMESTAMP" comment="Update Time"/>
+        <index referenceId="SUPERPAYMENTS_SESSION_QUOTE_ID" indexType="btree">
+            <column name="quote_id"/>
+        </index>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="SUPERPAYMENTS_SESSION_QUOTE_ID_QUOTE_ENTITY_ID" table="superpayments_session" column="quote_id" referenceTable="quote" referenceColumn="entity_id" onDelete="CASCADE"/>
+    </table>
+</schema>

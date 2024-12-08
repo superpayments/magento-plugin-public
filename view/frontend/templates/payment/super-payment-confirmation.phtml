@@ -1,0 +1,11 @@
+<?php
+/**@var Magento\Framework\View\Element\Template $block */
+/**@var Superpayments\SuperPayment\ViewModel\PaymentConfirmation $viewModel */
+$viewModel = $block->getData('view_model');
+if ($viewModel->isSuperPaymentOrder()) {
+    $bannerData = $viewModel->getPaymentConfirmationData();
+?>
+    <div class="super-container">
+        <?php echo '<super-payment-confirmation payment-intent-id="' .  $bannerData['paymentIntentId'] . '" customer-email="' . $bannerData['customerEmail'] . '" submit-email-guest-token="' . $bannerData['emailGuestToken'] . '" publishable-api-key="' . $bannerData['publishableApiKey'] . '"></super-payment-confirmation>'; ?>
+    </div>
+<?php } ?>
