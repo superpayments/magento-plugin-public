@@ -120,32 +120,44 @@ define(
             placeOrderClick: function (data, event) {
                 var self = this;
 
-                if (this.isProcessing) {
-                    return false;
-                } else {
-                    this.isProcessing = true;
-                }
-
-                fullScreenLoader.startLoader();
-
-                window.superCheckout.submit().then(function (response) {
-                    if (response.status === 'SUCCESS') {
-                        self.placeOrder();
-                    } else if (response.status === 'FAILURE') {
-                        self.messageContainer.addErrorMessage({message: $t(response.errorMessage)});
+                try {
+                    if (this.isProcessing) {
+                        return false;
+                    } else {
+                        this.isProcessing = true;
                     }
 
-                    if (response.status !== 'PENDING') {
+                    fullScreenLoader.startLoader();
+
+                    if (!window.superCheckout) {
+                        self.messageContainer.addErrorMessage({message: 'Please wait for the payment form to load, then try again.'});
+                        throw new Error('window.superCheckout is not yet available');
+                    }
+
+                    window.superCheckout.submit().then(function (response) {
+                        if (response.status === 'SUCCESS') {
+                            self.placeOrder();
+                        } else if (response.status === 'FAILURE') {
+                            self.messageContainer.addErrorMessage({message: $t(response.errorMessage)});
+                        }
+
+                        if (response.status !== 'PENDING') {
+                            fullScreenLoader.stopLoader();
+                            self.isProcessing = false;
+                        }
+                    }).catch(function (err) {
+                        console.log(err);
+                        self.messageContainer.addErrorMessage({message: 'An error occurred on the server. Please try again, if the problem persists please contact us. (' + err + ')'});
+
                         fullScreenLoader.stopLoader();
                         self.isProcessing = false;
-                    }
-                }).catch(function (err) {
-                    console.log(err);
-                    self.messageContainer.addErrorMessage({message: 'An error occurred on the server. Please try again, if the problem persists please contact us. (' + err + ')'});
+                    });
 
+                } catch (error) {
+                    console.error('Super place order error occurred:', error);
                     fullScreenLoader.stopLoader();
                     self.isProcessing = false;
-                });
+                }
 
                 return false;
             },
