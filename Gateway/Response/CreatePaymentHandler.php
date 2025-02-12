@@ -42,7 +42,7 @@ class CreatePaymentHandler implements HandlerInterface
             $result->setData($response['body']);
 
             if ($this->config->isDebugEnabled()) {
-                $this->logger->info('[SuperPayment] ' . $this->json->serialize($response['body']));
+                $this->logger->info('[SuperPayment] CreatePaymentHandler ' . $this->json->serialize($response['body']));
             }
 
             if (empty($result->getData('redirectUrl'))) {

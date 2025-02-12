@@ -6,6 +6,7 @@ namespace Superpayments\SuperPayment\Gateway\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\DataObject;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Payment\Gateway\Config\Config as PaymentsConfig;
 use Magento\Store\Model\ScopeInterface;
@@ -21,6 +22,7 @@ class Config extends PaymentsConfig
     public const MODULE_CODE = 'Superpayments_SuperPayment';
 
     public const KEY_ACTIVE = 'active';
+    public const KEY_VERSION = 'version';
     public const KEY_ENVIRONMENT = 'environment';
     public const KEY_API_KEY = 'api_key';
     public const KEY_CONFIRMATION_KEY = 'confirmation_key';
@@ -76,6 +78,9 @@ class Config extends PaymentsConfig
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var array */
+    private $businessConfigCache = [];
+
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         ModuleListInterface $moduleList,
@@ -114,6 +119,9 @@ class Config extends PaymentsConfig
 
     public function getModuleVersion(): ?string
     {
+        if ($value = $this->getValue(self::KEY_VERSION, $this->getStoreId())) {
+            return $value;
+        }
         $moduleInfo = $this->moduleList->getOne(self::MODULE_CODE);
         return $moduleInfo['setup_version'];
     }
@@ -160,6 +168,26 @@ class Config extends PaymentsConfig
         }
     }
 
+    private function saveBusinessConfigResultLocalCache(DataObject $result)
+    {
+        if (!$this->getApiKey() || $this->getStoreId() === null) {
+            return;
+        }
+        $this->businessConfigCache[$this->getStoreId()][$this->getApiKey()] = $result;
+    }
+
+    private function getBusinessConfigResultLocalCache(): ?DataObject
+    {
+        if (
+            isset($this->businessConfigCache[$this->getStoreId()]) &&
+            isset($this->businessConfigCache[$this->getStoreId()][$this->getApiKey()]) &&
+            $this->businessConfigCache[$this->getStoreId()][$this->getApiKey()] instanceof DataObject
+        ) {
+            return $this->businessConfigCache[$this->getStoreId()][$this->getApiKey()];
+        }
+        return null;
+    }
+
     public function getPublishableKey(): ?string
     {
         if ($this->getEnvironment() == Environment::SANDBOX) {
@@ -178,9 +206,16 @@ class Config extends PaymentsConfig
             $publishableKey = $parts[0];
         }
 
+        if ($update && $cachedResult = $this->getBusinessConfigResultLocalCache()) {
+            if ($publishableKey = $cachedResult->getPublishableKey()) {
+                $update = false;
+            }
+        }
+
         if (!$publishableKey || $update) {
             try {
                 $result = $this->businessConfigService->setConfig($this)->execute();
+                $this->saveBusinessConfigResultLocalCache($result);
                 $publishableKey = $result->getPublishableKey();
             } catch (Throwable $e) {
                 $this->logger->error('[SuperPayment] no publishable key ' . $e->getMessage());
@@ -208,9 +243,16 @@ class Config extends PaymentsConfig
             $integrationId = $parts[0];
         }
 
+        if ($update && $cachedResult = $this->getBusinessConfigResultLocalCache()) {
+            if ($integrationId = $cachedResult->getIntegrationId()) {
+                $update = false;
+            }
+        }
+
         if (!$integrationId || $update) {
             try {
                 $result = $this->businessConfigService->setConfig($this)->execute();
+                $this->saveBusinessConfigResultLocalCache($result);
                 $integrationId = $result->getIntegrationId();
             } catch (Throwable $e) {
                 $this->logger->error('[SuperPayment] no integration id ' . $e->getMessage());
@@ -238,9 +280,16 @@ class Config extends PaymentsConfig
             $brandId = $parts[0];
         }
 
+        if ($update && $cachedResult = $this->getBusinessConfigResultLocalCache()) {
+            if ($brandId = $cachedResult->getBrandId()) {
+                $update = false;
+            }
+        }
+
         if (!$brandId || $update) {
             try {
                 $result = $this->businessConfigService->setConfig($this)->execute();
+                $this->saveBusinessConfigResultLocalCache($result);
                 $brandId = $result->getBrandId();
             } catch (Throwable $e) {
                 $this->logger->error('[SuperPayment] no brand id ' . $e->getMessage());

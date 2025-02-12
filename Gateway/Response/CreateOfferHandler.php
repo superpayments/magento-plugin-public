@@ -42,7 +42,7 @@ class CreateOfferHandler implements HandlerInterface
             $result->setData($response['body']);
 
             if ($this->config->isDebugEnabled()) {
-                $this->logger->info('[SuperPayment] ' . $this->json->serialize($response['body']));
+                $this->logger->info('[SuperPayment] CreateOfferHandler ' . $this->json->serialize($response['body']));
             }
 
             if (

@@ -77,7 +77,7 @@ class BusinessConfigService implements ApiServiceInterface
         try {
             $this->commandPool->get('business_config')->execute($subject);
         } catch (Exception $e) {
-            $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] BusinessConfigService ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
             throw new ApiServiceException(__('SuperPayments error on business config call. Please try again later.'));
         }

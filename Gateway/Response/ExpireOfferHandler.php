@@ -41,7 +41,7 @@ class ExpireOfferHandler implements HandlerInterface
             $result->setData($response['body']);
 
             if ($this->config->isDebugEnabled()) {
-                $this->logger->info('[SuperPayment] ' . $this->json->serialize($response['body']));
+                $this->logger->info('[SuperPayment] ExpireOfferHandler ' . $this->json->serialize($response['body']));
             }
         } catch (Exception $e) {
             $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);

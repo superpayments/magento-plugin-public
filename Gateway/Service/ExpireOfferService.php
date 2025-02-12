@@ -56,7 +56,7 @@ class ExpireOfferService implements ApiServiceInterface
         try {
             $this->commandPool->get('expire_offer')->execute($subject);
         } catch (Exception $e) {
-            $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] ExpireOfferService ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
             throw new ApiServiceException(__('SuperPayments error on expire offer. Please try again later.'));
         }

@@ -9,10 +9,13 @@ use InvalidArgumentException;
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 use Magento\Payment\Gateway\Command\CommandPoolInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Psr\Log\LoggerInterface;
 
-class CreateReferralService implements ApiServiceInterface
+class ReturnFundsService implements ApiServiceInterface
 {
     /** @var CommandPoolInterface $commandPool */
     private $commandPool;
@@ -20,16 +23,21 @@ class CreateReferralService implements ApiServiceInterface
     /** @var DataObjectFactory $dataObjectFactory */
     private $dataObjectFactory;
 
+    /** @var PaymentDataObjectFactory $paymentDataObjectFactory */
+    private $paymentDataObjectFactory;
+
     /** @var LoggerInterface */
     private $logger;
 
     public function __construct(
         CommandPoolInterface $commandPool,
         DataObjectFactory $dataObjectFactory,
+        PaymentDataObjectFactory $paymentDataObjectFactory,
         LoggerInterface $logger
     ) {
         $this->commandPool = $commandPool;
         $this->dataObjectFactory = $dataObjectFactory;
+        $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         $this->logger = $logger;
     }
 
@@ -53,16 +61,30 @@ class CreateReferralService implements ApiServiceInterface
             throw new InvalidArgumentException('Invalid order data object provided');
         }
 
+        $payment = $subject['order']->getPayment();
+        if (
+            empty($payment)
+            || !$payment instanceof InfoInterface
+        ) {
+            throw new InvalidArgumentException('Payment model should be provided');
+        }
+
+        $subject['payment'] = $this->getPaymentDataObject($payment);
         $subject['store'] = $subject['order']->getStore();
 
         try {
-            $this->commandPool->get('create_referral')->execute($subject);
+            $this->commandPool->get('order_canceled_return_funds')->execute($subject);
         } catch (Exception $e) {
-            $this->logger->error('[SuperPayment] CreateReferralService ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] ReturnFundsService ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
-            throw new ApiServiceException(__('SuperPayments error on create referral. Please try again later.'));
+            throw new ApiServiceException(__($e->getMessage()));
         }
 
         return $subject['result'];
+    }
+
+    private function getPaymentDataObject(InfoInterface $payment): ?PaymentDataObjectInterface
+    {
+        return $this->paymentDataObjectFactory->create($payment);
     }
 }

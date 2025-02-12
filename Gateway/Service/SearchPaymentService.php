@@ -54,7 +54,7 @@ class SearchPaymentService implements ApiServiceInterface
         try {
             $this->commandPool->get('search_payment')->execute($subject);
         } catch (Exception $e) {
-            $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] SearchPaymentService ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
             throw new ApiServiceException(__('SuperPayments Api. ' . $e->getMessage()));
         }

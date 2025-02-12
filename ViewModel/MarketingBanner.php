@@ -256,7 +256,7 @@ class MarketingBanner implements ArgumentInterface
                 ];
                 $items[] = $item;
             } catch (Throwable $e) {
-                $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+                $this->logger->error('[SuperPayment] MarketingBanner::getWebComponentDataCartItems ' . $e->getMessage(), ['exception' => $e]);
             }
         }
 

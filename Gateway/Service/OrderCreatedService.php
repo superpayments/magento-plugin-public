@@ -58,7 +58,7 @@ class OrderCreatedService implements ApiServiceInterface
         try {
             $this->commandPool->get('order_created')->execute($subject);
         } catch (Throwable $e) {
-            $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] OrderCreatedService ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
             throw new ApiServiceException(__($e->getMessage()));
         }

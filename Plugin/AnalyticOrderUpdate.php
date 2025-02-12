@@ -49,7 +49,8 @@ class AnalyticOrderUpdate
             $data = [
                 'order' => $object,
             ];
-            if (empty($status) || $oldStatus == $status) {
+
+            if (empty($status) || $oldStatus == $status || !$data['order']->getIncrementId()) {
                 return $result;
             }
 
@@ -59,7 +60,7 @@ class AnalyticOrderUpdate
                 $this->orderStatusChangedService->execute($data);
             }
         } catch (Throwable $e) {
-            $this->logger->error(
+            $this->logger->warning(
                 '[SuperPayments] AnalyticOrderUpdate ' . $e->getMessage() ."\n". $e->getTraceAsString()
             );
         }

@@ -72,7 +72,7 @@ class CreatePaymentService implements ApiServiceInterface
         try {
             $this->commandPool->get('create_payment')->execute($subject);
         } catch (Exception $e) {
-            $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] CreatePaymentService ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
             throw new ApiServiceException(__($e->getMessage()));
         }

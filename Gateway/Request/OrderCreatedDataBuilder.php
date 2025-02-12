@@ -64,7 +64,7 @@ class OrderCreatedDataBuilder extends AbstractDataBuilder
                     'description' => $item->getProduct()->getDescription() ?? null,
                 ];
             } catch (Throwable $e) {
-                $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+                $this->logger->error('[SuperPayment] OrderCreatedDataBuilder::getItems ' . $e->getMessage(), ['exception' => $e]);
             }
         }
 

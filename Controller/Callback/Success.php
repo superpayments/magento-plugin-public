@@ -95,8 +95,8 @@ class Success implements ActionInterface, HttpGetActionInterface
 
             if ($this->config->isDebugEnabled()) {
                 $this->logger->info(
-                    '[SuperPayments] Success callback page' .
-                    'Order State: ' . $this->order->getState() .
+                    '[SuperPayments] Success callback page. ' .
+                    'Order State: ' . $this->order->getState() . ' ' .
                     'Order Status: ' . $this->order->getState()
                 );
             }
@@ -114,8 +114,8 @@ class Success implements ActionInterface, HttpGetActionInterface
                 || $this->order->getStatus() == Order::STATE_CANCELED
             ) {
                 $this->order->addCommentToStatusHistory(
-                    __('Order was canceled by administrator during payment step by customer. '
-                        . 'Payment is now complete.')
+                    __('Customer has returned to success callback page. '
+                        . 'Order is in a canceled state.')
                 );
             } else {
                 $this->order->addCommentToStatusHistory(

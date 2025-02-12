@@ -13,6 +13,7 @@ use Magento\Framework\App\ActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Response\RedirectInterface;
 use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
 use Magento\Sales\Model\Order;
@@ -131,21 +132,12 @@ class Redirect implements ActionInterface, HttpGetActionInterface
 
             $response = $this->apiService->execute($data);
 
-            $this->order->getPayment()->setAdditionalInformation(
-                'paymentIntentId',
-                $response->getData('paymentIntentId')
-            );
-            $this->order->getPayment()->setAdditionalInformation(
-                'superCheckoutSessionId',
-                $response->getData('checkoutSessionId')
-            );
-            $this->orderRepository->save($this->order);
+            if ($response->hasData('redirectUrl') && $response->getData('isSuccessful')) {
+                return $this->handleSuccess($response);
+            }
 
-            $this->checkoutSession->setLastSuperPaymentRedirect($this->order->getIncrementId());
-            $this->rememberLastSession();
-
-            return $this->redirect($response->getData('redirectUrl'));
-        } catch (Exception $e) {
+            return $this->handlePaymentError($response);
+        } catch (Throwable $e) {
             $this->messageManager->addErrorMessage(
                 __('There was a problem redirecting to payment gateway. Please try again.')
             );
@@ -215,5 +207,49 @@ class Redirect implements ActionInterface, HttpGetActionInterface
         } catch (Throwable $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
         }
+    }
+
+    private function handleSuccess(DataObject $response): ResponseInterface
+    {
+        $this->order->getPayment()->setAdditionalInformation(
+            'paymentIntentId',
+            $response->getData('paymentIntentId')
+        );
+        $this->order->getPayment()->setAdditionalInformation(
+            'superCheckoutSessionId',
+            $response->getData('checkoutSessionId')
+        );
+        $this->orderRepository->save($this->order);
+
+        $this->checkoutSession->setLastSuperPaymentRedirect($this->order->getIncrementId());
+        $this->rememberLastSession();
+
+        return $this->redirect($response->getData('redirectUrl'));
+    }
+
+    private function handlePaymentError(DataObject $response): ResponseInterface
+    {
+        try {
+            $orderIncrementId = $this->order->getIncrementId();
+            if (!$this->order->isCanceled()) {
+                $this->order->cancel();
+            }
+            $this->order->addCommentToStatusHistory(
+                'SuperPayment: There was a problem with taking payment. ' . $response->getData('message')
+            );
+            $this->orderRepository->save($this->order);
+            $this->checkoutSession->restoreQuote();
+            $this->checkoutSession->setLastRealOrderId($orderIncrementId);
+            $this->messageManager->addErrorMessage(
+                __(
+                    'Payment error: %1 Please try again.',
+                    $response->getData('message') ?? 'There was a problem with your payment.'
+                )
+            );
+        } catch (Exception $e) {
+            $this->logger->critical('[SuperPayments] ' . $e->getMessage(), ['exception' => $e]);
+        }
+
+        return $this->redirect('checkout/cart', ['_secure' => $this->config->isWebsiteSecure()]);
     }
 }

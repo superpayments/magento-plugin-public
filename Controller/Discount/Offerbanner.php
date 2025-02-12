@@ -122,7 +122,7 @@ class Offerbanner implements ActionInterface, HttpPostActionInterface, CsrfAware
                 ];
                 $items[] = $item;
             } catch (Throwable $e) {
-                $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+                $this->logger->error('[SuperPayment] Offerbanner::getCartItems ' . $e->getMessage(), ['exception' => $e]);
             }
         }
 

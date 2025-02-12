@@ -109,7 +109,7 @@ class OfferResolver implements ResolverInterface
                 ];
                 $items[] = $item;
             } catch (Throwable $e) {
-                $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+                $this->logger->error('[SuperPayment] OfferResolver::getCartItems ' . $e->getMessage(), ['exception' => $e]);
             }
         }
 
