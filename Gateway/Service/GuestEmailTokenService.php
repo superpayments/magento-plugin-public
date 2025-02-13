@@ -56,7 +56,7 @@ class GuestEmailTokenService implements ApiServiceInterface
         try {
             $this->commandPool->get('guest_email_token')->execute($subject);
         } catch (Exception $e) {
-            $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] GuestEmailTokenService ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
             throw new ApiServiceException(__('SuperPayments error on guest email token. Please try again later.'));
         }

@@ -80,7 +80,7 @@ class Payment implements ActionInterface, HttpPostActionInterface, CsrfAwareActi
     {
         try {
             if ($this->config->isDebugEnabled()) {
-                $this->logger->info('[SuperPayments] Webhook Hit');
+                $this->logger->info('[SuperPayments] Payment Webhook Hit');
             }
             $this->addHeaders();
             if ($data = $this->getRequestData()) {
@@ -90,7 +90,11 @@ class Payment implements ActionInterface, HttpPostActionInterface, CsrfAwareActi
                 $this->response->setStatusCode(Http::STATUS_CODE_200)->setContent('OK');
             }
         } catch (Exception $e) {
-            $this->logger->critical('[SuperPayments] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->critical(
+                '[SuperPayments] Payment Webhook processing failed ' .
+                $e->getMessage() . "\n" . $e->getTraceAsString(),
+                ['exception' => $e]
+            );
             $this->response->setStatusCode(Http::STATUS_CODE_500)->setContent('FAIL');
         }
 
@@ -159,8 +163,18 @@ class Payment implements ActionInterface, HttpPostActionInterface, CsrfAwareActi
             $data['fundingSummary'] = json_encode($requestJsonData['fundingSummary']);
         }
 
-        if (empty($data['orderIncrementId']) || empty($data['transactionStatus'])) {
-            $this->logger->error('[SuperPayments Webhook] Invalid webhook data received');
+        if (empty($data['transactionStatus'])) {
+            $this->logger->error('[SuperPayments Webhook] Invalid webhook data received - missing transactionStatus');
+            return $this->unauthorizedResponse();
+        }
+
+        if ($data['transactionStatus'] == PaymentUpdate::STATUS_ABANDONED && empty($data['orderIncrementId'])) {
+            $this->logger->info('[SuperPayments Webhook] PaymentAbandoned received, no externalReference, skipped');
+            return $this->ignoredWebhookResponse();
+        }
+
+        if (empty($data['orderIncrementId'])) {
+            $this->logger->error('[SuperPayments Webhook] Invalid webhook data received - missing externalReference');
             return $this->unauthorizedResponse();
         }
 
@@ -195,6 +209,12 @@ class Payment implements ActionInterface, HttpPostActionInterface, CsrfAwareActi
     private function unauthorizedResponse()
     {
         $this->response->setStatusCode(Http::STATUS_CODE_400)->setContent('400');
+        return null;
+    }
+
+    private function ignoredWebhookResponse()
+    {
+        $this->response->setStatusCode(Http::STATUS_CODE_200)->setContent('OK');
         return null;
     }
 

@@ -39,14 +39,15 @@ class CompleteCheckoutSessionHandler implements HandlerInterface
             /** @var DataObject $result */
             $result = $handlingSubject['result'];
             $result->setData($response['body']);
-            $result->setData('transactionId', $response['body']['paymentIntentId']);
+            $result->setData('statusCode', $response['statusCode']);
+            $result->setData('isSuccessful', $response['isSuccessful']);
 
-            if ($this->config->isDebugEnabled()) {
-                $this->logger->info('[SuperPayment] ' . $this->json->serialize($response['body']));
+            if ($response['isSuccessful']) {
+                $result->setData('transactionId', ($response['body']['paymentIntentId'] ?? null));
             }
 
-            if (empty($result->getData('redirectUrl'))) {
-                throw new Exception(__('SuperPayment redirect url not found.'));
+            if ($this->config->isDebugEnabled()) {
+                $this->logger->info('[SuperPayment] CompleteCheckoutSessionHandler ' . $this->json->serialize($response['body']));
             }
         } catch (Exception $e) {
             $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);

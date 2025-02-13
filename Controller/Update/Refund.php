@@ -80,7 +80,7 @@ class Refund implements ActionInterface, HttpPostActionInterface, CsrfAwareActio
     {
         try {
             if ($this->config->isDebugEnabled()) {
-                $this->logger->info('[SuperPayments] Webhook Hit');
+                $this->logger->info('[SuperPayments] Refund Webhook Hit');
             }
             $this->addHeaders();
             if ($data = $this->getRequestData()) {
@@ -90,7 +90,11 @@ class Refund implements ActionInterface, HttpPostActionInterface, CsrfAwareActio
                 $this->response->setStatusCode(Http::STATUS_CODE_200)->setContent('OK');
             }
         } catch (Exception $e) {
-            $this->logger->critical('[SuperPayments] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->critical(
+                '[SuperPayments] Refund Webhook processing failed ' .
+                $e->getMessage() . "\n" . $e->getTraceAsString(),
+                ['exception' => $e]
+            );
             $this->response->setStatusCode(Http::STATUS_CODE_500)->setContent('FAIL');
         }
 
@@ -160,8 +164,8 @@ class Refund implements ActionInterface, HttpPostActionInterface, CsrfAwareActio
         $data['transactionId'] = $requestJsonData['transactionId'];
         $data['transactionReference'] = $requestJsonData['transactionReference'];
 
-        if (empty($data['orderIncrementId']) || empty($data['transactionStatus'])) {
-            $this->logger->error('[SuperPayments Webhook] Invalid webhook data received');
+        if (empty($data['transactionStatus']) || empty($data['orderIncrementId'])) {
+            $this->logger->error('[SuperPayments Webhook] Invalid webhook data received - missing transactionStatus or externalReference');
             return $this->unauthorizedResponse();
         }
 
@@ -179,6 +183,7 @@ class Refund implements ActionInterface, HttpPostActionInterface, CsrfAwareActio
             $data['isDuplicateWebhook'] = (
                 isset($additionalInfo['refundTransactionId']) &&
                 $additionalInfo['refundTransactionId'] == $data['transactionId'] &&
+                isset($additionalInfo['refundTransactionStatus']) &&
                 $additionalInfo['refundTransactionStatus'] == PaymentUpdate::STATUS_REFUNDED
             );
             if ($data['isDuplicateWebhook']) {

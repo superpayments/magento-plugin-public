@@ -58,7 +58,7 @@ class OrderStatusChangedService implements ApiServiceInterface
         try {
             $this->commandPool->get('order_status_changed')->execute($subject);
         } catch (Throwable $e) {
-            $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] OrderStatusChangedService ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
             throw new ApiServiceException(__($e->getMessage()));
         }

@@ -56,7 +56,7 @@ class RetrievePaymentService implements ApiServiceInterface
         try {
             $this->commandPool->get('retrieve_payment')->execute($subject);
         } catch (Exception $e) {
-            $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] RetrievePaymentService ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
             throw new ApiServiceException(__('SuperPayments Api. ' . $e->getMessage()));
         }

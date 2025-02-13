@@ -37,7 +37,7 @@ class RefundHandler implements HandlerInterface
     {
         try {
             if ($this->config->isDebugEnabled()) {
-                $this->logger->info('[SuperPayment] ' . $this->json->serialize($response['body']));
+                $this->logger->info('[SuperPayment] RefundHandler ' . $this->json->serialize($response['body']));
             }
 
             /** @var \Magento\Sales\Api\Data\OrderPaymentInterface $payment */

@@ -14,18 +14,18 @@ use Superpayments\SuperPayment\Gateway\Config\Config;
 class ResponseValidator implements ValidatorInterface
 {
     /** @var Config $config */
-    private $config;
+    protected $config;
 
     /** @var Logger */
-    private $logger;
+    protected $logger;
 
     /** @var Json */
-    private $json;
+    protected $json;
 
     /**
      * @var ResultInterfaceFactory
      */
-    private $resultInterfaceFactory;
+    protected $resultInterfaceFactory;
 
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -52,8 +52,11 @@ class ResponseValidator implements ValidatorInterface
         if (!$isValid) {
             $errorCodes = (is_array($response['body']) && isset($response['body']['statusCode']))
                 ? [$response['body']['statusCode']] : [$response['statusCode']];
-            $errorMessages = (is_array($response['body']) && isset($response['body']['errorMessage']))
-                ? explode("\n", $response['body']['errorMessage']) : [];
+            $errorMessages = (is_array($response['body']) && isset($response['body']['errorMessage'])) ?
+                explode("\n", $response['body']['errorMessage']) :
+                ((is_array($response['body']) && isset($response['body']['message']))
+                    ? [$response['body']['message']] : [])
+            ;
         }
 
         $result = [

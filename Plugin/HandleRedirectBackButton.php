@@ -60,6 +60,10 @@ class HandleRedirectBackButton
                 if (!empty($lastSuperPaymentRedirect) && $lastSuperPaymentRedirect == $orderId) {
                     if (!$this->order->isCanceled()) {
                         $this->order->cancel();
+                        $this->order->addCommentToStatusHistory(
+                            'Customer did not successfully complete payment flow on the 3DS/Wallet redirect url (likely clicked the browser Back button), ' .
+                            'sending them back to the checkout page. This incomplete order has been canceled to avoid duplicate orders.'
+                        );
                         $this->orderRepository->save($this->order);
                     }
                     $this->checkoutSession->restoreQuote();

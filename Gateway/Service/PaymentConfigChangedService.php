@@ -72,7 +72,7 @@ class PaymentConfigChangedService implements ApiServiceInterface
             $subject['payload'] = $this->getPayload($subject);
             $this->commandPool->get('payment_config_changed')->execute($subject);
         } catch (Throwable $e) {
-            $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] PaymentConfigChangedService ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
             throw new ApiServiceException(__($e->getMessage()));
         }
@@ -146,7 +146,7 @@ class PaymentConfigChangedService implements ApiServiceInterface
             }
             $payload['payment_gateway_order'] = $methods;
         } catch (Throwable $e) {
-            $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] PaymentConfigChangedService::getPayload ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
         }
 

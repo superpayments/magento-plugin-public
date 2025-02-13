@@ -19,6 +19,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Superpayments\SuperPayment\Gateway\Config\Config;
 use Superpayments\SuperPayment\Gateway\Service\ApiServiceInterface;
+use Superpayments\SuperPayment\Gateway\Service\ReturnFundsService;
 
 class PaymentUpdate
 {
@@ -36,6 +37,9 @@ class PaymentUpdate
 
     /** @var ApiServiceInterface */
     private $apiService;
+
+    /** @var ReturnFundsService */
+    private $returnFundsService;
 
     /** @var LoggerInterface */
     private $logger;
@@ -74,6 +78,7 @@ class PaymentUpdate
         CreditmemoFactory $creditMemoFactory,
         CreditmemoManagementInterface $creditMemoService,
         CreditmemoRepositoryInterface $creditMemoRepository,
+        ReturnFundsService $returnFundsService,
         LoggerInterface $logger
     ) {
         $this->orderRepository = $orderRepository;
@@ -85,6 +90,7 @@ class PaymentUpdate
         $this->creditMemoFactory = $creditMemoFactory;
         $this->creditMemoService = $creditMemoService;
         $this->creditMemoRepository = $creditMemoRepository;
+        $this->returnFundsService = $returnFundsService;
         $this->logger = $logger;
         $this->order = null;
     }
@@ -99,8 +105,10 @@ class PaymentUpdate
 
         switch ($updateData['transactionStatus']) {
             case self::STATUS_SUCCESS:
-                $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->setStatus(Order::STATE_PROCESSING);
+                if (!$this->order->isCanceled()) {
+                    $this->order->setState(Order::STATE_PROCESSING);
+                    $this->order->setStatus(Order::STATE_PROCESSING);
+                }
 
                 /* Order Update for instant Discount row*/
                 $this->updateOrderTotal($updateData);
@@ -134,13 +142,18 @@ class PaymentUpdate
                 }
                 $this->order->getPayment()->setAdditionalInformation($additionalInfo);
                 $this->saveOrder();
-                $this->sendOrderConfirmationEmail();
-                if ($this->config->isAutoRegisterCaptureEnabled()) {
-                    $this->registerCapture(((float) $updateData['transactionAmount']) / 100);
-                    $this->sendInvoiceEmail();
+
+                if ($this->order->isCanceled()) {
+                    $this->handleReturnFundsOnCanceledOrder($updateData);
+                } else {
+                    $this->sendOrderConfirmationEmail();
+                    if ($this->config->isAutoRegisterCaptureEnabled()) {
+                        $this->registerCapture(((float) $updateData['transactionAmount']) / 100);
+                        $this->sendInvoiceEmail();
+                    }
+                    $this->expireOffer();
+                    $this->saveOrder();
                 }
-                $this->expireOffer();
-                $this->saveOrder();
                 break;
             case self::STATUS_CANCELED:
             case self::STATUS_ABANDONED:
@@ -288,6 +301,30 @@ class PaymentUpdate
                 $this->logger->error($e->getTraceAsString());
             }
             throw new Exception($e->getMessage());
+        }
+    }
+
+    private function handleReturnFundsOnCanceledOrder(?array $updateData): void
+    {
+        try {
+            if (!$this->order->isCanceled()) {
+                return;
+            }
+
+            $this->returnFundsService->execute([
+                'order' => $this->order,
+            ]);
+
+            $refundTransactionRef = $this->order->getPayment()->getAdditionalInformation('refundTransactionReference') ?? '';
+
+            $this->order->addCommentToStatusHistory(
+                'Superpayments automatic refund initiated as order found in a canceled state after payment capture. Refund reference: ' . $refundTransactionRef
+            );
+            $this->saveOrder();
+        } catch (Exception $e) {
+            if ($this->config->isDebugEnabled()) {
+                $this->logger->error($e->getTraceAsString());
+            }
         }
     }
 }

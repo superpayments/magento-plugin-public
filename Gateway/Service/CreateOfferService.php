@@ -54,7 +54,7 @@ class CreateOfferService implements ApiServiceInterface
         try {
             $this->commandPool->get('create_offer')->execute($subject);
         } catch (Exception $e) {
-            $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayment] CreateOfferService ' . $e->getMessage(), ['exception' => $e]);
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
             throw new ApiServiceException(__('SuperPayments error on create offer. Please try again later.'));
         }
