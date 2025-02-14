@@ -117,6 +117,11 @@ define(
                 this.redirectAfterPlaceOrder = true;
             },
 
+            handleSuperErrorResponse: function() {
+                this.isProcessing = false;
+                fullScreenLoader.stopLoader();
+            },
+
             placeOrderClick: function (data, event) {
                 var self = this;
 
@@ -142,21 +147,17 @@ define(
                         }
 
                         if (response.status !== 'PENDING') {
-                            fullScreenLoader.stopLoader();
-                            self.isProcessing = false;
+                            self.handleSuperErrorResponse();
                         }
                     }).catch(function (err) {
                         console.log(err);
                         self.messageContainer.addErrorMessage({message: 'An error occurred on the server. Please try again, if the problem persists please contact us. (' + err + ')'});
-
-                        fullScreenLoader.stopLoader();
-                        self.isProcessing = false;
+                        self.handleSuperErrorResponse();
                     });
 
                 } catch (error) {
                     console.error('Super place order error occurred:', error);
-                    fullScreenLoader.stopLoader();
-                    self.isProcessing = false;
+                    self.handleSuperErrorResponse();
                 }
 
                 return false;
