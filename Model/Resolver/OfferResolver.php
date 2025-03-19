@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Superpayments\SuperPayment\Model\Resolver;
 
 use Exception;
+use Magento\Framework\Escaper;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
@@ -38,13 +39,17 @@ class OfferResolver implements ResolverInterface
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var Escaper */
+    private $escaper;
+
     public function __construct(
         GetCartForUser $getCartForUser,
         Json $jsonSerializer,
         ApiServiceInterface $apiService,
         StoreManagerInterface $storeManager,
         PriceConverter $priceConverter,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Escaper $escaper
     ) {
         $this->jsonSerializer = $jsonSerializer;
         $this->getCartForUser = $getCartForUser;
@@ -52,6 +57,7 @@ class OfferResolver implements ResolverInterface
         $this->storeManager = $storeManager;
         $this->priceConverter = $priceConverter;
         $this->logger = $logger;
+        $this->escaper = $escaper;
     }
 
     /**
@@ -83,10 +89,11 @@ class OfferResolver implements ResolverInterface
             ]);
             $superCheckoutSessionId = $result['checkoutSessionId'] ?? '';
             $superCheckoutSessionToken = $result['checkoutSessionToken'] ?? '';
+            $phoneNumber = $this->getPhoneNumber($quote);
             $page = 'checkout';
             $json = [
                 'title' => '<div class="super-payment-method-title"><super-payment-method-title cartAmount="' . $cartAmount . '" page="' . $page . '" cartId="' . $cartId . '" cartItems="' . $this->cartItemsEncode($cartItems) . '"></super-payment-method-title></div>',
-                'description' => '<super-checkout amount="' . $cartAmount . '" checkout-session-token="' . $superCheckoutSessionToken . '"></super-checkout>',
+                'description' => '<super-checkout amount="' . $cartAmount . '" checkout-session-token="' . $superCheckoutSessionToken . '" phone-number="' . $this->escaper->escapeHtmlAttr($phoneNumber) . '"></super-checkout>',
                 'super_checkout_session_id' => $superCheckoutSessionId,
             ];
         } catch (Exception $e) {
@@ -114,5 +121,46 @@ class OfferResolver implements ResolverInterface
         }
 
         return $items;
+    }
+
+    private function getPhoneNumber(Quote $quote): string
+    {
+        try {
+            $phoneNumber = '';
+            $billingAddress = $quote->getBillingAddress();
+            $phoneNumber = $billingAddress ? $billingAddress->getTelephone() : '';
+            if (empty($phoneNumber)) {
+                $phoneNumber = $this->getCustomerDefaultBillingTelephone($quote);
+            }
+            if (empty($phoneNumber)) {
+                $shippingAddress = $quote->getShippingAddress();
+                $phoneNumber = $shippingAddress ? $shippingAddress->getTelephone() : '';
+            }
+        } catch (Throwable $e) {
+            $this->logger->error('[SuperPayment] Offerbanner::getPhoneNumber ' . $e->getMessage(), ['exception' => $e]);
+        }
+
+        return $phoneNumber ?? '';
+    }
+
+    private function getCustomerDefaultBillingTelephone(Quote $quote): ?string
+    {
+        try {
+            $customerId = $quote->getCustomerId();
+            if (!$customerId) {
+                return null;
+            }
+
+            $customerAddresses = $quote->getCustomer()->getAddresses();
+            foreach ($customerAddresses as $customerAddress) {
+                if ($customerAddress->isDefaultBilling() && $telephone = $customerAddress->getTelephone()) {
+                    return $telephone;
+                }
+            }
+        } catch (Throwable $e) {
+            $this->logger->error('[SuperPayment] Offerbanner::getCustomerDefaultBillingTelephone ' . $e->getMessage(), ['exception' => $e]);
+        }
+
+        return null;
     }
 }

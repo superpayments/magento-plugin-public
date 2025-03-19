@@ -61,6 +61,28 @@ define(
                     $('super-payment-method-description').attr('cartAmount', minorUnitAmount);
                 }, this);
 
+                quote.billingAddress.subscribe(function (billingAddress)
+                {
+                    if (!billingAddress)
+                        return;
+
+                    if (!billingAddress.telephone)
+                        return;
+
+                    this.insertMemberNumber(billingAddress.telephone);
+                }, this);
+
+                quote.shippingAddress.subscribe(function (shippingAddress)
+                {
+                    if (!shippingAddress)
+                        return;
+
+                    if (!shippingAddress.telephone)
+                        return;
+
+                    this.insertMemberNumber(shippingAddress.telephone);
+                }, this);
+
                 return this;
             },
 
@@ -75,6 +97,7 @@ define(
                     }
                 };
             },
+
             getLogo: function(){
                 return paymentLogo;
             },
@@ -82,6 +105,7 @@ define(
             getSuperDiscountBanner(){
                 var offerurl =  url.build('superpayment/discount/offerbanner');
                 if(loaded) return;
+                var self = this;
                 $.ajax({
                     url: offerurl,
                     dataType : 'json',
@@ -98,6 +122,7 @@ define(
                         var title = data.title;
                         $(".superblockcontent").html(description);
                         $(".superpayment_title").html(title);
+                        self.insertMemberNumber();
                     },
                     error: function (xhr, status, errorThrown) {
                         console.log('Error happens. Try again.');
@@ -120,6 +145,19 @@ define(
             handleSuperErrorResponse: function() {
                 this.isProcessing = false;
                 fullScreenLoader.stopLoader();
+            },
+
+            insertMemberNumber: function(phoneNumber = null) {
+                try {
+                    if (window.superCheckout && $('super-checkout').length > 0 && $('super-checkout').attr('phone-number') === '') {
+                        var billingPhone = phoneNumber !== null ? phoneNumber : (quote.billingAddress() ? quote.billingAddress().telephone : '');
+                        if (billingPhone && billingPhone.length >= 10) {
+                            $('super-checkout').attr('phone-number', billingPhone);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Super insert member number error occurred:', error);
+                }
             },
 
             placeOrderClick: function (data, event) {
