@@ -1,7 +1,7 @@
 {
     "name": "superpayments/superpayment",
     "description": "SuperPayments Payment for Magento 2",
-    "version": "2.6.8",
+    "version": "2.6.9",
     "type": "magento2-module",
     "require": {
         "php": ">=7.4.33",

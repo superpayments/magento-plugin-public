@@ -33,6 +33,11 @@ define(
                 redirectAfterPlaceOrder: true
             },
 
+            initialize: function () {
+                loaded = false;
+                return this._super();
+            },
+
             initObservable: function () {
 
                 this._super()
