@@ -109,6 +109,7 @@ class Client implements ClientInterface
                 $response['headers'] = $responseObject->getHeaders()->toArray();
                 $response['statusCode'] = $responseObject->getStatusCode();
             }
+            $response['endpoint'] = $transferObject->getUri();
             $log['responseSuccess'] = $response['isSuccessful'];
             $log['responseHeaders'] = $response['headers'];
             $log['responseStatusCode'] = $response['statusCode'];

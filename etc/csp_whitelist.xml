@@ -6,6 +6,8 @@
                 <!-- Embedded checkout domains-->
                 <value id="superpayments" type="host">*.superpayments.com</value>
                 <value id="stripe-sub" type="host">*.stripe.com</value>
+                <value id="stripe-b-cdn" type="host">b.stripecdn.com</value>
+                <value id="stripe-m-network" type="host">m.stripe.network</value>
                 <!-- Segment domains -->
                 <value id="segment-com" type="host">segment.com</value>
                 <value id="segment-sub" type="host">*.segment.com</value>
@@ -22,6 +24,7 @@
             <values>
                 <value id="superpayments" type="host">*.superpayments.com</value>
                 <value id="stripe-sub" type="host">*.stripe.com</value>
+                <value id="stripe-js-sub" type="host">*.js.stripe.com</value>
             </values>
         </policy>
         <policy id="frame-ancestors">
@@ -35,6 +38,7 @@
             <values>
                 <value id="superpayments" type="host">*.superpayments.com</value>
                 <value id="stripe-sub" type="host">*.stripe.com</value>
+                <value id="storyblok-img" type="host">a.storyblok.com</value>
             </values>
         </policy>
         <policy id="connect-src">
@@ -56,8 +60,12 @@
                 <value id="seon-df" type="host">*.seondfresolver.com</value>
                 <value id="seon-device-inf" type="host">*.deviceinfresolver.com</value>
                 <value id="seon-intel" type="host">*.seonintelligence.com</value>
-                <!-- Trustpilot for confirmation component -->
+                <!-- TP domains -->
                 <value id="trustpilot" type="host">*.trustpilot.com</value>
+                <value id="storyblok-api" type="host">api.storyblok.com</value>
+                <value id="googleapis-maps" type="host">maps.googleapis.com</value>
+                <value id="smartlook-sdk" type="host">web-sdk.smartlook.com</value>
+                <value id="sentry-sub" type="host">*.sentry.io</value>
             </values>
         </policy>
         <policy id="font-src">

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/crontab.xsd">
+    <group id="default">
+        <job name="superpayments_productsync_fullsync"
+             instance="Superpayments\SuperPayment\Cron\ProductSyncFullSync"
+             method="execute">
+            <schedule>0 3 * * *</schedule>
+        </job>
+
+        <job name="superpayments_productsync_sendqueue"
+             instance="Superpayments\SuperPayment\Cron\ProductSyncSendQueue"
+             method="execute">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+    </group>
+</config>

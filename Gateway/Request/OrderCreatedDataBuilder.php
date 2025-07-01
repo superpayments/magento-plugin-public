@@ -61,7 +61,7 @@ class OrderCreatedDataBuilder extends AbstractDataBuilder
                     'url' => $item->getProduct()->getUrlModel()->getUrl($item->getProduct()),
                     'quantity' => (int) $item->getQtyOrdered(),
                     'minorUnitAmount' => $this->priceConverter->minorUnitAmount($item->getPrice()),
-                    'description' => $item->getProduct()->getDescription() ?? null,
+                    'description' => null,
                 ];
             } catch (Throwable $e) {
                 $this->logger->error('[SuperPayment] OrderCreatedDataBuilder::getItems ' . $e->getMessage(), ['exception' => $e]);

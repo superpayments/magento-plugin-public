@@ -105,8 +105,11 @@ class Offerbanner implements ActionInterface, HttpPostActionInterface, CsrfAware
                 'title' => '<div class="super-payment-method-title"><super-payment-method-title cartAmount="' . $cartAmount . '" page="' . $page . '" cartId="' . $cartId . '" cartItems="' . $this->cartItemsEncode($cartItems) . '"></super-payment-method-title></div>',
                 'description' => '<super-checkout amount="' . $cartAmount . '" checkout-session-token="' . $superCheckoutSessionToken . '" phone-number="' . $this->escaper->escapeHtmlAttr($phoneNumber) . '"></super-checkout>',
             ];
+            if (empty($cartAmount)) {
+                $this->logger->error("[SuperPayments] OfferBanner quote grand total is zero, quoteId: " . $this->quote->getId());
+            }
         } catch (Exception $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayments] OfferBanner Controller: ' . $e->getMessage(), ['exception' => $e]);
             $data = ['result' => 'error', 'exception' => $e->getMessage()];
         }
         $result = $this->jsonResultFactory->create();

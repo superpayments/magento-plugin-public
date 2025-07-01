@@ -50,12 +50,16 @@ class Config extends PaymentsConfig
     public const KEY_CDN_URL_SANDBOX = 'cdn_url_sandbox';
     public const KEY_PAYMENT_JS_URL = 'payment_js_url';
     public const KEY_PAYMENT_JS_URL_SANDBOX = 'payment_js_url_sandbox';
+    public const KEY_PUBLISHER_JS_URL = 'publisher_js_url';
+    public const KEY_PUBLISHER_JS_URL_SANDBOX = 'publisher_js_url_sandbox';
     public const KEY_GRAPHQL = 'graphql';
     public const KEY_GRAPHQL_SUCCESS_URL = 'graphql_success_url';
     public const KEY_GRAPHQL_CANCEL_URL = 'graphql_cancel_url';
     public const KEY_GRAPHQL_FAILURE_URL = 'graphql_failure_url';
     public const KEY_FLOW_TYPE = 'flow_type';
     public const KEY_HANDOFF_SUCCESS_ROUTE = 'handoff_success_route';
+    public const KEY_PRODUCT_SYNC_ENABLED = 'product_sync_enabled';
+    public const KEY_PRODUCT_FULL_SYNC_COMPLETED = 'product_full_sync_completed';
 
     /** @var null|int $store */
     private $store;
@@ -369,6 +373,14 @@ class Config extends PaymentsConfig
         return $this->getValue(self::KEY_PAYMENT_JS_URL_SANDBOX, $this->getStoreId());
     }
 
+    public function getPublisherJsUrl(): string
+    {
+        if ($this->getEnvironment() == 'production') {
+            return $this->getValue(self::KEY_PUBLISHER_JS_URL, $this->getStoreId());
+        }
+        return $this->getValue(self::KEY_PUBLISHER_JS_URL_SANDBOX, $this->getStoreId());
+    }
+
     public function getUrl(): string
     {
         return $this->getUrlBase() . '/2024-02-01';
@@ -430,5 +442,15 @@ class Config extends PaymentsConfig
     public function getHandoffSuccessRoute(): ?string
     {
         return $this->getValue(self::KEY_HANDOFF_SUCCESS_ROUTE, $this->getStoreId());
+    }
+
+    public function isProductSyncEnabled(): bool
+    {
+        return (bool) $this->getValue(self::KEY_PRODUCT_SYNC_ENABLED, $this->getStoreId());
+    }
+
+    public function isProductFullSyncCompleted(): ?string
+    {
+        return $this->getValue(self::KEY_PRODUCT_FULL_SYNC_COMPLETED, $this->getStoreId());
     }
 }

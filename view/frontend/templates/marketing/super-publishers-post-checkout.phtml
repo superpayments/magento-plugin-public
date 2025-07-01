@@ -1,0 +1,15 @@
+<?php
+/**@var Magento\Framework\View\Element\Template $block */
+/**@var Superpayments\SuperPayment\ViewModel\MarketingBanner $viewModel */
+$viewModel = $block->getData('view_model');
+if (!$viewModel->isSuperPaymentOrder() && $viewModel->getPublishersPostCheckoutBanner()) {
+?>
+    <div class="super-container">
+        <style>
+            .super-container div[style] {
+                font-size: 12px;
+            }
+        </style>
+        <?php echo '<super-publishers-post-checkout offer-type="super-brands" brand-id="' . $viewModel->getBrandId() . '" publishable-api-key="' . $viewModel->getPublishableKey() . '"></super-publishers-post-checkout>'; ?>
+    </div>
+<?php } ?>

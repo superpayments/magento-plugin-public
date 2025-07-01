@@ -17,4 +17,7 @@
     <type name="Magento\Checkout\Controller\Index\Index">
         <plugin name="superpaymentsHandleRedirectBackButton" type="Superpayments\SuperPayment\Plugin\HandleRedirectBackButton"/>
     </type>
+    <type name="Magento\Customer\CustomerData\Customer">
+        <plugin name="superpaymentsCustomerDataAddEmail" type="Superpayments\SuperPayment\Plugin\CustomerDataAddEmail"/>
+    </type>
 </config>

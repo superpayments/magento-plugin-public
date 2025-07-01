@@ -1,29 +1,34 @@
 <?xml version="1.0"?>
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
-    <group id="marketing_assets" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+    <group id="marketing_assets" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Marketing Assets</label>
-        <field id="banner_mode" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+        <field id="banner_mode" translate="label" type="select" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
             <label>Show Offer Banner On</label>
             <source_model>Superpayments\SuperPayment\Model\Config\Source\BannerMode</source_model>
             <config_path>payment/super_payment_gateway/banner_mode</config_path>
         </field>
-        <field id="plp_banner" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+        <field id="plp_banner" translate="label" type="select" sortOrder="230" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
             <label>PLP (Product Listing Page) Banner</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/super_payment_gateway/plp_banner</config_path>
         </field>
-        <field id="pdp_banner" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+        <field id="pdp_banner" translate="label" type="select" sortOrder="240" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
             <label>PDP (Product Detail Page) Banner</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/super_payment_gateway/pdp_banner</config_path>
         </field>
-        <field id="cart_banner" translate="label" type="select" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+        <field id="cart_banner" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
             <label>Cart Page Banner</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/super_payment_gateway/cart_banner</config_path>
         </field>
-        <field id="confirmation_page_banner" translate="label" type="select" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+        <field id="publisher_post_checkout_banner" translate="label" type="select" sortOrder="260" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+            <label>Show Super Offers To All Customers</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/super_payment_gateway/publisher_post_checkout_banner</config_path>
+        </field>
+        <field id="confirmation_page_banner" translate="label" type="select" sortOrder="270" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
             <label>Order Confirmation Page Referral Banner</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/super_payment_gateway/confirmation_page_banner</config_path>

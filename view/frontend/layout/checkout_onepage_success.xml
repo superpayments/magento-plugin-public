@@ -14,6 +14,16 @@
             </block>
             <block class="Magento\Framework\View\Element\Template"
                    ifconfig="payment/super_payment_gateway/active"
+                   template="Superpayments_SuperPayment::marketing/super-publishers-post-checkout.phtml"
+                   name="onepage.success.super_publishers_web_component"
+                   after="-">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Superpayments\SuperPayment\ViewModel\MarketingBanner
+                    </argument>
+                </arguments>
+            </block>
+            <block class="Magento\Framework\View\Element\Template"
+                   ifconfig="payment/super_payment_gateway/active"
                    template="Superpayments_SuperPayment::marketing/super-transaction-rewards.phtml"
                    name="onepage.success.super_payment_web_component"
                    after="-">
@@ -39,6 +49,14 @@
                    ifconfig="payment/super_payment_gateway/active">
                 <arguments>
                     <argument name="view_model" xsi:type="object">Superpayments\SuperPayment\ViewModel\PaymentConfirmation
+                    </argument>
+                </arguments>
+            </block>
+            <block class="Magento\Framework\View\Element\Template" name="superpayments.confirmation.publishers.js"
+                   template="Superpayments_SuperPayment::payment/publishers-js.phtml" after="-"
+                   ifconfig="payment/super_payment_gateway/active">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Superpayments\SuperPayment\ViewModel\MarketingBanner
                     </argument>
                 </arguments>
             </block>

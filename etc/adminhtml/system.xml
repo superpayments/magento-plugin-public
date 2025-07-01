@@ -59,6 +59,9 @@
                     <label>Sort Order</label>
                     <frontend_class>validate-number</frontend_class>
                 </field>
+                <field id="title" translate="label" type="text" sortOrder="36" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Title</label>
+                </field>
                 <field id="default_selected" translate="label" type="select" sortOrder="34" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
                     <label>Make Superpayments default?</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -113,6 +116,19 @@
                     <label>Payment Failure Callback URL</label>
                     <depends>
                         <field id="graphql">1</field>
+                    </depends>
+                </field>
+                <field id="product_sync_enabled" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Product Sync Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>If set to Yes, this store's products will be synced to Superpayments.</comment>
+                </field>
+                <field id="product_full_sync_completed" translate="label" type="select" sortOrder="95" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <label>Full Sync Executed</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Indicates if the initial full sync has been ran for this store. Normally set automatically.</comment>
+                    <depends>
+                        <field id="product_sync_enabled">1</field>
                     </depends>
                 </field>
                 <include path="Superpayments_SuperPayment::system/marketing.xml"/>
