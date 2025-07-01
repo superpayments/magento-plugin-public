@@ -30,4 +30,36 @@
         </constraint>
         <constraint xsi:type="foreign" referenceId="SUPERPAYMENTS_SESSION_QUOTE_ID_QUOTE_ENTITY_ID" table="superpayments_session" column="quote_id" referenceTable="quote" referenceColumn="entity_id" onDelete="CASCADE"/>
     </table>
+
+    <table name="superpayments_productsync_queue" resource="default" engine="innodb" comment="Superpayments ProductSync Queue Table">
+        <column xsi:type="int" name="queue_id" nullable="false" identity="true" unsigned="true" comment="Queue ID"/>
+        <column xsi:type="int" name="product_id" nullable="false" unsigned="true" comment="Magento Product ID"/>
+        <column xsi:type="int" name="store_id" nullable="false" unsigned="true" default="0" comment="Store ID"/>
+        <column xsi:type="varchar" name="action_type" nullable="false" length="32" default="update" comment="Action Type"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="32" default="pending" comment="Processing Status"/>
+        <column xsi:type="int" name="attempts" nullable="false" default="0" unsigned="true" comment="Number of attempts"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" on_update="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" on_update="true" default="CURRENT_TIMESTAMP" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="queue_id"/>
+        </constraint>
+        <index referenceId="SUPERPAYMENTS_PRODUCTSYNC_QUEUE_PRODUCT_ID" indexType="btree">
+            <column name="product_id"/>
+        </index>
+    </table>
+
+    <table name="superpayments_productsync_status" resource="default" engine="innodb" comment="Superpayments ProductSync Status Table">
+        <column xsi:type="int" name="status_id" nullable="false" identity="true" unsigned="true" comment="Status ID"/>
+        <column xsi:type="int" name="product_id" nullable="false" unsigned="true" comment="Magento Product ID"/>
+        <column xsi:type="int" name="store_id" nullable="false" unsigned="true" default="0" comment="Store ID"/>
+        <column xsi:type="timestamp" name="sp_last_synced_at" nullable="true" default="NULL" comment="Last Synced Timestamp"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="status_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="SUPERPAYMENTS_PRODUCTSYNC_STATUS_PRD_STORE_UNIQUE">
+            <column name="product_id"/>
+            <column name="store_id"/>
+        </constraint>
+    </table>
+
 </schema>

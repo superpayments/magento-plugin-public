@@ -72,6 +72,11 @@ class MarketingBanner implements ArgumentInterface
         return $this->config->getCdnUrl();
     }
 
+    public function getPublisherJsUrl(): string
+    {
+        return $this->config->getPublisherJsUrl();
+    }
+
     public function shouldUseSecureRenderer(): bool
     {
         $magentoVersion = $this->config->getMagentoVersion();
@@ -91,6 +96,12 @@ class MarketingBanner implements ArgumentInterface
     {
         $this->config->setStoreId((int) $this->storeManager->getStore()->getId());
         return $this->config->getIntegrationId();
+    }
+
+    public function getBrandId(): ?string
+    {
+        $this->config->setStoreId((int) $this->storeManager->getStore()->getId());
+        return $this->config->getBrandId();
     }
 
     public function getStoreCurrencyCode(): ?string
@@ -138,6 +149,15 @@ class MarketingBanner implements ArgumentInterface
     {
         return $this->scopeConfig->isSetFlag(
             'payment/super_payment_gateway/confirmation_page_web_component',
+            ScopeInterface::SCOPE_STORE,
+            $this->storeManager->getStore()->getStoreId()
+        );
+    }
+
+    public function getPublishersPostCheckoutBanner(): ?bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            'payment/super_payment_gateway/publisher_post_checkout_banner',
             ScopeInterface::SCOPE_STORE,
             $this->storeManager->getStore()->getStoreId()
         );

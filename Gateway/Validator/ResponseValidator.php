@@ -46,6 +46,7 @@ class ResponseValidator implements ValidatorInterface
     {
         $response = $validationSubject['response'];
         $isValid = $response['isSuccessful'];
+        $endpoint = $response['endpoint'] ?? null;
         $errorMessages = [];
         $errorCodes = [];
 
@@ -63,6 +64,7 @@ class ResponseValidator implements ValidatorInterface
             'isValid' => $isValid,
             'failsDescription' => $errorMessages,
             'errorCodes' => $errorCodes,
+            'endpoint' => $endpoint,
         ];
 
         if (!$isValid && $this->config->isDebugEnabled()) {

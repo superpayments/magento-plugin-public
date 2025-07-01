@@ -20,6 +20,7 @@
                 <item name="super_payment_gateway_flow_type" xsi:type="string">payment/super_payment_gateway/flow_type</item>
                 <item name="super_payment_gateway_handoff_success_route" xsi:type="string">payment/super_payment_gateway/handoff_success_route</item>
                 <item name="super_payment_gateway_confirmation_page_web_component" xsi:type="string">payment/super_payment_gateway/confirmation_page_web_component</item>
+                <item name="super_payment_gateway_publisher_post_checkout_banner" xsi:type="string">payment/super_payment_gateway/publisher_post_checkout_banner</item>
                 <item name="super_payment_gateway_cdn_url" xsi:type="string">payment/super_payment_gateway/cdn_url</item>
                 <item name="super_payment_gateway_cdn_url_sandbox" xsi:type="string">payment/super_payment_gateway/cdn_url_sandbox</item>
                 <item name="super_payment_gateway_payment_js_url" xsi:type="string">payment/super_payment_gateway/payment_js_url</item>

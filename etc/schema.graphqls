@@ -16,6 +16,7 @@ type StoreConfig {
     super_payment_gateway_flow_type: String @doc(description: "SuperPayments Flow Type")
     super_payment_gateway_handoff_success_route: String @doc(description: "SuperPayments Handoff Success Route")
     super_payment_gateway_confirmation_page_web_component: String @doc(description: "SuperPayments Show Confirmation Page Web Banner")
+    super_payment_gateway_publisher_post_checkout_banner: String @doc(description: "SuperPayments Show Confirmation Page Publisher Banner")
     super_payment_gateway_cdn_url: String @doc(description: "SuperPayments CDN Production URL")
     super_payment_gateway_cdn_url_sandbox: String @doc(description: "SuperPayments CDN Sandbox URL")
     super_payment_gateway_payment_js_url: String @doc(description: "SuperPayments Payment JS URL")

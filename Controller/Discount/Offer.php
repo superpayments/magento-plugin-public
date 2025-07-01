@@ -77,7 +77,7 @@ class Offer implements ActionInterface, HttpGetActionInterface, CsrfAwareActionI
                 $json = array_merge($json, $content);
             }
         } catch (Exception $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            $this->logger->error('[SuperPayments] Offer Controller: ' . $e->getMessage(), ['exception' => $e]);
             $json = ['result' => 'error', 'exception' => $e->getMessage()];
         }
         $result->setData($json);

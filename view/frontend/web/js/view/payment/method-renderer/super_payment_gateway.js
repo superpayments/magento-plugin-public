@@ -9,6 +9,7 @@ define(
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/full-screen-loader',
         'mage/translate',
+        'Magento_Customer/js/customer-data',
     ],
     function (
         $,
@@ -18,6 +19,7 @@ define(
         quote,
         fullScreenLoader,
         $t,
+        customerData,
     ) {
         'use strict';
 
@@ -182,7 +184,21 @@ define(
                         throw new Error('window.superCheckout is not yet available');
                     }
 
-                    window.superCheckout.submit().then(function (response) {
+                    const {
+                        cusFirstName,
+                        cusLastName,
+                        cusEmail,
+                        cusPhoneNumber
+                    } = this.getCustomerDetails();
+
+                    window.superCheckout.submit({
+                        customerInformation: {
+                            firstName:   cusFirstName,
+                            lastName:    cusLastName,
+                            email:       cusEmail,
+                            phoneNumber: cusPhoneNumber,
+                        }
+                    }).then(function (response) {
                         if (response.status === 'SUCCESS') {
                             self.placeOrder();
                         } else if (response.status === 'FAILURE') {
@@ -205,6 +221,34 @@ define(
 
                 return false;
             },
+
+            getCustomerDetails: function() {
+                try {
+                    const billing = quote.billingAddress() || {};
+                    const {
+                        telephone:   cusPhoneNumber = '',
+                        firstname:   cusFirstName   = '',
+                        lastname:    cusLastName    = ''
+                    } = billing;
+
+                    const customer = customerData?.get('customer')() || {};
+                    let spContact = '';
+                    if (customer.spContact) {
+                        try {
+                            spContact = atob(customer.spContact);
+                        } catch (e) {
+                            console.warn('SuperPayments failed to decode sp contact:', e);
+                        }
+                    }
+                    const cusEmail = spContact || quote.guestEmail || '';
+
+                    return { cusFirstName, cusLastName, cusEmail, cusPhoneNumber };
+                } catch (error) {
+                    console.error('SuperPayments error retrieving customer details:', error);
+                    return { cusFirstName: '', cusLastName: '', cusEmail: '', cusPhoneNumber: '' };
+                }
+            },
+
         });
     }
 );

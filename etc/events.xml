@@ -6,4 +6,10 @@
     <event name="checkout_onepage_controller_success_action">
         <observer name="superpayments_success_offer_expire" instance="Superpayments\SuperPayment\Observer\SuccessOfferExpire" />
     </event>
+    <event name="catalog_product_save_after">
+        <observer name="superpayments_productsync_product_save" instance="Superpayments\SuperPayment\Observer\ProductSaveObserver"/>
+    </event>
+    <event name="catalog_product_delete_before">
+        <observer name="superpayments_productsync_product_delete" instance="Superpayments\SuperPayment\Observer\ProductDeleteObserver"/>
+    </event>
 </config>
