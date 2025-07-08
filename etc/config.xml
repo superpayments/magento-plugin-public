@@ -68,6 +68,8 @@
                 <max_order_total/>
                 <product_sync_enabled>0</product_sync_enabled>
                 <product_full_sync_completed>0</product_full_sync_completed>
+                <loader_container_id>body</loader_container_id>
+                <deadlock_mitigate_enabled>0</deadlock_mitigate_enabled>
             </super_payment_gateway>
         </payment>
     </default>

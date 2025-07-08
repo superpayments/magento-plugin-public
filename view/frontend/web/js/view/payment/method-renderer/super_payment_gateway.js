@@ -27,6 +27,7 @@ define(
         var debug = window.checkoutConfig.payment.super_payment_gateway.debug;
         var paymentLogo = window.checkoutConfig.payment.super_payment_gateway.paymentLogo;
         var isDefault = window.checkoutConfig.payment.super_payment_gateway.isDefault;
+        var loaderContainerId = window.checkoutConfig.payment.super_payment_gateway.loaderContainerId;
         var loaded = false;
 
         return Component.extend({
@@ -120,10 +121,10 @@ define(
                     async: false,
                     cache: false,
                     beforeSend: function() {
-                        $('body').trigger('processStart');
+                        $(loaderContainerId).trigger('processStart');
                     },
                     success: function(data, status, xhr) {
-                        $('body').trigger('processStop');
+                        $(loaderContainerId).trigger('processStop');
                         $(".superpaymentmethod").show();
                         var description = data.description;
                         var title = data.title;
@@ -134,7 +135,7 @@ define(
                     error: function (xhr, status, errorThrown) {
                         console.log('Error happens. Try again.');
                         console.log(errorThrown);
-                        $('body').trigger('processStop');
+                        $(loaderContainerId).trigger('processStop');
                     }
                 });
                 loaded = true;

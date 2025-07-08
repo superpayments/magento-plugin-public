@@ -56,6 +56,7 @@ class ConfigProvider implements ConfigProviderInterface
                         ['_secure' => $this->request->isSecure()]
                     ),
                     'isDefault' => $this->config->isDefaultSelected(),
+                    'loaderContainerId' => $this->config->getLoaderContainerId(),
                 ],
             ],
         ];
