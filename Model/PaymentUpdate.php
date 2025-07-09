@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Superpayments\SuperPayment\Model;
 
 use Exception;
-use Magento\Sales\Api\CreditmemoManagementInterface;
+use Magento\Framework\DB\Adapter\DeadlockException;
+use Magento\Framework\DB\Adapter\LockWaitException;
+use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
-use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Invoice;
@@ -20,6 +21,7 @@ use Psr\Log\LoggerInterface;
 use Superpayments\SuperPayment\Gateway\Config\Config;
 use Superpayments\SuperPayment\Gateway\Service\ApiServiceInterface;
 use Superpayments\SuperPayment\Gateway\Service\ReturnFundsService;
+use Throwable;
 
 class PaymentUpdate
 {
@@ -31,6 +33,7 @@ class PaymentUpdate
     public const STATUS_REFUNDED = 'RefundSuccess';
     public const STATUS_REFUND_FAILED = 'RefundFailed';
     public const STATUS_REFUND_ABANDONED = 'RefundAbandoned';
+    public const MAX_SAVE_RETRIES = 3;
 
     /** @var OrderInterface */
     private $orderRepository;
@@ -59,12 +62,6 @@ class PaymentUpdate
     /** @var InvoiceSender */
     private $invoiceSender;
 
-    /** @var CreditmemoFactory */
-    private $creditMemoFactory;
-
-    /** @var CreditmemoManagementInterface */
-    private $creditMemoService;
-
     /** @var CreditmemoRepositoryInterface */
     private $creditMemoRepository;
 
@@ -75,8 +72,6 @@ class PaymentUpdate
         StoreManagerInterface $storeManager,
         OrderSender $orderSender,
         InvoiceSender $invoiceSender,
-        CreditmemoFactory $creditMemoFactory,
-        CreditmemoManagementInterface $creditMemoService,
         CreditmemoRepositoryInterface $creditMemoRepository,
         ReturnFundsService $returnFundsService,
         LoggerInterface $logger
@@ -87,8 +82,6 @@ class PaymentUpdate
         $this->storeManager = $storeManager;
         $this->orderSender = $orderSender;
         $this->invoiceSender = $invoiceSender;
-        $this->creditMemoFactory = $creditMemoFactory;
-        $this->creditMemoService = $creditMemoService;
         $this->creditMemoRepository = $creditMemoRepository;
         $this->returnFundsService = $returnFundsService;
         $this->logger = $logger;
@@ -178,8 +171,8 @@ class PaymentUpdate
     {
         try {
             $this->order->getPayment()->registerCaptureNotification($transactionAmount, true);
-        } catch (Exception $e) {
-            $this->logger->critical($e->getMessage(), ['exception' => $e]);
+        } catch (Throwable $e) {
+            $this->logger->critical('[SP Webhook] RegisterCapture ' . $e->getMessage(), ['exception' => $e]);
             if ($this->config->isDebugEnabled()) {
                 $this->logger->error($e->getTraceAsString());
             }
@@ -196,8 +189,8 @@ class PaymentUpdate
                 ];
                 $this->apiService->execute($data);
             }
-        } catch (Exception $e) {
-            $this->logger->critical($e->getMessage(), ['exception' => $e]);
+        } catch (Throwable $e) {
+            $this->logger->critical('[SP Webhook] ExpireOffer ' . $e->getMessage(), ['exception' => $e]);
             if ($this->config->isDebugEnabled()) {
                 $this->logger->error($e->getTraceAsString());
             }
@@ -211,8 +204,8 @@ class PaymentUpdate
             if (($this->config->isOrderSendEmailEnabled() || $forceSend) && !$this->order->getEmailSent()) {
                 $this->orderSender->send($this->order, $forceSend);
             }
-        } catch (Exception $e) {
-            $this->logger->critical($e->getMessage(), ['exception' => $e]);
+        } catch (Throwable $e) {
+            $this->logger->critical('[SP Webhook] SendOrderEmail ' . $e->getMessage(), ['exception' => $e]);
             if ($this->config->isDebugEnabled()) {
                 $this->logger->error($e->getTraceAsString());
             }
@@ -222,8 +215,13 @@ class PaymentUpdate
     private function saveOrder(): void
     {
         try {
-            $this->orderRepository->save($this->order);
-        } catch (Exception $e) {
+            if ($this->config->isDeadlockMitigateEnabled()) {
+                $this->deadlockMitigatedSave();
+            } else {
+                $this->orderRepository->save($this->order);
+            }
+        } catch (Throwable $e) {
+            $this->logger->critical('[SP Webhook] SaveOrder ' . $e->getMessage(), ['exception' => $e]);
             if ($this->config->isDebugEnabled()) {
                 $this->logger->error($e->getTraceAsString());
             }
@@ -231,10 +229,37 @@ class PaymentUpdate
         }
     }
 
+    private function deadlockMitigatedSave(): void
+    {
+        $orderId = $this->order->getIncrementId() ?? $this->order->getId();
+
+        for ($i = 1; $i <= self::MAX_SAVE_RETRIES; $i++) {
+            try {
+                $this->orderRepository->save($this->order);
+                break;
+            } catch (DeadlockException|LockWaitException $e) {
+                if ($i < self::MAX_SAVE_RETRIES) {
+                    $this->logger->error('[SP Webhook] Deadlock encountered retrying ..' . $e->getMessage(), ['exception' => $e]);
+                    sleep(2);
+                    continue;
+                }
+                throw new CouldNotSaveException(
+                    __('[SP Webhook] Unable to save order #%1 after %2 attempts due to a database lock: %3', $orderId, $i, $e->getMessage()),
+                    $e
+                );
+            } catch (Exception $e) {
+                throw new CouldNotSaveException(
+                    __('[SP Webhook] Unable to save order #%1: %2', $orderId, $e->getMessage()),
+                    $e
+                );
+            }
+        }
+    }
+
     private function updateOrderTotal(array $updateData): void
     {
         $collectAmountAfterSaving = $updateData['transactionAmount'] / 100;
-        $grandTotal = isset($collectAmountAfterSaving) ? $collectAmountAfterSaving : $this->order->getGrandTotal();
+        $grandTotal = $collectAmountAfterSaving ?? $this->order->getGrandTotal();
 
         $this->order->setGrandTotal($grandTotal);
         $this->order->setBaseGrandTotal($grandTotal);
@@ -252,7 +277,7 @@ class PaymentUpdate
                     $this->invoiceSender->send($invoice, $forceSend);
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->logger->critical($e->getMessage(), ['exception' => $e]);
             if ($this->config->isDebugEnabled()) {
                 $this->logger->error($e->getTraceAsString());
@@ -296,7 +321,7 @@ class PaymentUpdate
                 $this->creditMemoRepository->save($creditMemo);
                 $this->saveOrder();
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             if ($this->config->isDebugEnabled()) {
                 $this->logger->error($e->getTraceAsString());
             }
@@ -321,7 +346,7 @@ class PaymentUpdate
                 'Superpayments automatic refund initiated as order found in a canceled state after payment capture. Refund reference: ' . $refundTransactionRef
             );
             $this->saveOrder();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             if ($this->config->isDebugEnabled()) {
                 $this->logger->error($e->getTraceAsString());
             }

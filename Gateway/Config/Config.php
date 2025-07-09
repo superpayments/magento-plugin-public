@@ -60,6 +60,8 @@ class Config extends PaymentsConfig
     public const KEY_HANDOFF_SUCCESS_ROUTE = 'handoff_success_route';
     public const KEY_PRODUCT_SYNC_ENABLED = 'product_sync_enabled';
     public const KEY_PRODUCT_FULL_SYNC_COMPLETED = 'product_full_sync_completed';
+    public const KEY_LOADER_CONTAINER_ID = 'loader_container_id';
+    public const KEY_DEADLOCK_MITIGATE_ENABLED = 'deadlock_mitigate_enabled';
 
     /** @var null|int $store */
     private $store;
@@ -76,9 +78,6 @@ class Config extends PaymentsConfig
     /** @var BusinessConfigService $businessConfigService */
     private $businessConfigService;
 
-    /** @var StoreManagerInterface $storeManager */
-    private $storeManager;
-
     /** @var LoggerInterface */
     private $logger;
 
@@ -90,7 +89,6 @@ class Config extends PaymentsConfig
         ModuleListInterface $moduleList,
         ProductMetadataInterface $productMetadata,
         BusinessConfigService $businessConfigService,
-        StoreManagerInterface $storeManager,
         LoggerInterface $logger,
         string $methodCode = self::PAYMENT_CODE,
         string $pathPattern = PaymentsConfig::DEFAULT_PATH_PATTERN
@@ -101,7 +99,6 @@ class Config extends PaymentsConfig
         $this->moduleList = $moduleList;
         $this->productMetadata = $productMetadata;
         $this->businessConfigService = $businessConfigService;
-        $this->storeManager = $storeManager;
         $this->logger = $logger;
         $this->store = null;
     }
@@ -452,5 +449,15 @@ class Config extends PaymentsConfig
     public function isProductFullSyncCompleted(): ?string
     {
         return $this->getValue(self::KEY_PRODUCT_FULL_SYNC_COMPLETED, $this->getStoreId());
+    }
+
+    public function getLoaderContainerId(): ?string
+    {
+        return $this->getValue(self::KEY_LOADER_CONTAINER_ID, $this->getStoreId());
+    }
+
+    public function isDeadlockMitigateEnabled(): bool
+    {
+        return (bool) $this->getValue(self::KEY_DEADLOCK_MITIGATE_ENABLED, $this->getStoreId());
     }
 }
