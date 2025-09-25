@@ -10,6 +10,7 @@ use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -149,6 +150,11 @@ class ProductSyncFullSync
     /**
      * Perform a bulk insert for the given rows.
      * Each row is an associative array with keys matching table columns.
+     *
+     * @param AdapterInterface $connection
+     * @param string $tableName
+     * @param array $rows
+     * @return void
      */
     protected function bulkInsert($connection, $tableName, array $rows)
     {

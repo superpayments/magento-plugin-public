@@ -25,34 +25,28 @@ use Throwable;
 
 class Offerbanner implements ActionInterface, HttpPostActionInterface, CsrfAwareActionInterface
 {
-    /**
-     * @var JsonFactory
-     */
+    /** @var JsonFactory */
     private $jsonResultFactory;
 
-    /** @var Session $checkoutSession */
+    /** @var Session */
     private $checkoutSession;
 
-    /** @var ApiServiceInterface $apiService */
+    /** @var ApiServiceInterface */
     private $apiService;
 
-    /** @var StoreManagerInterface $storeManager */
+    /** @var StoreManagerInterface */
     private $storeManager;
 
-    /** @var CartInterface $quote */
+    /** @var CartInterface */
     private $quote;
 
-    /**
-     * @var RequestInterface
-     */
+    /** @var RequestInterface */
     private $request;
 
-    /**
-     * @var CheckoutSessionRepository
-     */
+    /** @var CheckoutSessionRepository */
     private $checkoutSessionRepository;
 
-    /** @var PriceConverter $priceConverter */
+    /** @var PriceConverter */
     private $priceConverter;
 
     /** @var LoggerInterface */
@@ -88,30 +82,74 @@ class Offerbanner implements ActionInterface, HttpPostActionInterface, CsrfAware
         try {
             $this->quote = $this->checkoutSession->getQuote();
             $this->quote->collectTotals();
+
             $result = $this->apiService->execute([
                 'store' => $this->storeManager->getStore($this->quote->getStoreId()),
             ]);
 
             $superCheckoutSessionId = $result['checkoutSessionId'] ?? '';
             $superCheckoutSessionToken = $result['checkoutSessionToken'] ?? '';
-            $this->checkoutSessionRepository->saveOrUpdate($this->quote->getId(), $superCheckoutSessionId);
 
-            $cartAmount = $this->priceConverter->minorUnitAmount($this->quote->getGrandTotal());
-            $cartId = ($this->quote->getId() ?: 'unknown-' . time());
+            $this->checkoutSessionRepository->saveOrUpdate(
+                $this->quote->getId(),
+                $superCheckoutSessionId
+            );
+
+            $cartAmountMinor = $this->priceConverter->minorUnitAmount(
+                $this->quote->getGrandTotal()
+            );
+            $cartAmountAttr = $this->escaper->escapeHtmlAttr((string)(int)$cartAmountMinor);
+
+            $cartIdRaw = $this->quote->getId() ?: ('unknown-' . time());
+            $cartIdAttr = $this->escaper->escapeHtmlAttr((string)$cartIdRaw);
+
             $cartItems = $this->getCartItems();
+            $cartItemsAttr = $this->cartItemsEncode($cartItems);
+
             $phoneNumber = $this->getPhoneNumber();
+            $phoneAttr = $this->escaper->escapeHtmlAttr($phoneNumber);
+
             $page = 'checkout';
+            $pageAttr = $this->escaper->escapeHtmlAttr($page);
+
+            $checkoutTokenAttr = $this->escaper->escapeHtmlAttr($superCheckoutSessionToken);
+
+            $titleHtml =
+                '<div class="super-payment-method-title">' .
+                '<super-payment-method-title ' .
+                'cartAmount="' . $cartAmountAttr . '" ' .
+                'page="' . $pageAttr . '" ' .
+                'cartId="' . $cartIdAttr . '" ' .
+                'cartItems="' . $cartItemsAttr . '"' .
+                '></super-payment-method-title>' .
+                '</div>';
+
+            $descriptionHtml =
+                '<super-checkout ' .
+                'amount="' . $cartAmountAttr . '" ' .
+                'checkout-session-token="' . $checkoutTokenAttr . '" ' .
+                'phone-number="' . $phoneAttr . '"' .
+                '></super-checkout>';
+
             $data = [
-                'title' => '<div class="super-payment-method-title"><super-payment-method-title cartAmount="' . $cartAmount . '" page="' . $page . '" cartId="' . $cartId . '" cartItems="' . $this->cartItemsEncode($cartItems) . '"></super-payment-method-title></div>',
-                'description' => '<super-checkout amount="' . $cartAmount . '" checkout-session-token="' . $superCheckoutSessionToken . '" phone-number="' . $this->escaper->escapeHtmlAttr($phoneNumber) . '"></super-checkout>',
+                'title'       => $titleHtml,
+                'description' => $descriptionHtml,
             ];
-            if (empty($cartAmount)) {
-                $this->logger->error("[SuperPayments] OfferBanner quote grand total is zero, quoteId: " . $this->quote->getId());
+
+            if (empty($cartAmountMinor)) {
+                $this->logger->error(
+                    '[SuperPayments] OfferBanner quote grand total is zero, quoteId: ' .
+                    $this->quote->getId()
+                );
             }
         } catch (Exception $e) {
-            $this->logger->error('[SuperPayments] OfferBanner Controller: ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error(
+                '[SuperPayments] OfferBanner Controller: ' . $e->getMessage(),
+                ['exception' => $e]
+            );
             $data = ['result' => 'error', 'exception' => $e->getMessage()];
         }
+
         $result = $this->jsonResultFactory->create();
         $result->setData($data);
         return $result;
@@ -122,24 +160,31 @@ class Offerbanner implements ActionInterface, HttpPostActionInterface, CsrfAware
         $items = [];
         foreach ($this->quote->getAllVisibleItems() as $item) {
             try {
-                $item = [
-                    'name' => $item->getName(),
-                    'url' => $item->getProduct()->getUrlModel()->getUrl($item->getProduct()),
-                    'quantity' => (int) $item->getQty(),
+                $items[] = [
+                    'name'            => $item->getName(),
+                    'url'             => $item->getProduct()->getUrlModel()->getUrl($item->getProduct()),
+                    'quantity'        => (int)$item->getQty(),
                     'minorUnitAmount' => $this->priceConverter->minorUnitAmount($item->getPrice()),
                 ];
-                $items[] = $item;
             } catch (Throwable $e) {
-                $this->logger->error('[SuperPayment] Offerbanner::getCartItems ' . $e->getMessage(), ['exception' => $e]);
+                $this->logger->error(
+                    '[SuperPayment] Offerbanner::getCartItems ' . $e->getMessage(),
+                    ['exception' => $e]
+                );
             }
         }
 
         return $items;
     }
 
-    private function cartItemsEncode(?array $cartItems = []): ?string
+    private function cartItemsEncode(?array $cartItems = []): string
     {
-        return htmlspecialchars(json_encode($cartItems));
+        $json = json_encode(
+            $cartItems ?? [],
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
+
+        return $this->escaper->escapeHtmlAttr((string)$json);
     }
 
     public function validateForCsrf(RequestInterface $request): ?bool
@@ -158,6 +203,7 @@ class Offerbanner implements ActionInterface, HttpPostActionInterface, CsrfAware
             $phoneNumber = '';
             $billingAddress = $this->quote->getBillingAddress();
             $phoneNumber = $billingAddress ? $billingAddress->getTelephone() : '';
+
             if (empty($phoneNumber)) {
                 $phoneNumber = $this->getCustomerDefaultBillingTelephone();
             }
@@ -166,7 +212,10 @@ class Offerbanner implements ActionInterface, HttpPostActionInterface, CsrfAware
                 $phoneNumber = $shippingAddress ? $shippingAddress->getTelephone() : '';
             }
         } catch (Throwable $e) {
-            $this->logger->error('[SuperPayment] Offerbanner::getPhoneNumber ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error(
+                '[SuperPayment] Offerbanner::getPhoneNumber ' . $e->getMessage(),
+                ['exception' => $e]
+            );
         }
 
         return $phoneNumber ?? '';
@@ -182,12 +231,18 @@ class Offerbanner implements ActionInterface, HttpPostActionInterface, CsrfAware
 
             $customerAddresses = $this->quote->getCustomer()->getAddresses();
             foreach ($customerAddresses as $customerAddress) {
-                if ($customerAddress->isDefaultBilling() && $telephone = $customerAddress->getTelephone()) {
+                if (
+                    $customerAddress->isDefaultBilling()
+                    && ($telephone = $customerAddress->getTelephone())
+                ) {
                     return $telephone;
                 }
             }
         } catch (Throwable $e) {
-            $this->logger->error('[SuperPayment] Offerbanner::getCustomerDefaultBillingTelephone ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error(
+                '[SuperPayment] Offerbanner::getCustomerDefaultBillingTelephone ' . $e->getMessage(),
+                ['exception' => $e]
+            );
         }
 
         return null;

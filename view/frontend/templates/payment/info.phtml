@@ -1,16 +1,21 @@
 <?php
-
 /**
  * @var \Magento\Payment\Block\Info $block
  * @see \Magento\Payment\Block\Info
  * @var \Magento\Framework\Escaper $escaper
  */
-$specificInfo = $block->getSpecificInformation();
-$additionalInformation = $block->getInfo()->getAdditionalInformation();
-$paymentTitle = $block->getMethod()->getConfigData('title', $block->getInfo()->getOrder()->getStoreId());
-$paymentMethod = (isset($additionalInformation['payment_method'])) ? $additionalInformation['payment_method'] :  $escaper->escapeHtml($paymentTitle);
+
+$specificInfo          = $block->getSpecificInformation();
+$additionalInformation = (array) $block->getInfo()->getAdditionalInformation();
+
+$storeId       = $block->getInfo()->getOrder()->getStoreId();
+$paymentTitle  = (string) $block->getMethod()->getConfigData('title', $storeId);
+
+$paymentMethod = isset($additionalInformation['payment_method'])
+    ? (string) $additionalInformation['payment_method']
+    : $paymentTitle;
 ?>
 
-<?= $paymentMethod ?>
+<?= $escaper->escapeHtml($paymentMethod) ?>
 
-<?= $block->getChildHtml() ?>
+<?= /* @noEscape */ $block->getChildHtml() ?>

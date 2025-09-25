@@ -1,16 +1,28 @@
 <?php
-/**@var Magento\Framework\View\Element\Template $block */
-/**@var Superpayments\SuperPayment\ViewModel\MarketingBanner $viewModel */
+/** @var Magento\Framework\View\Element\Template $block */
+/** @var Superpayments\SuperPayment\ViewModel\MarketingBanner $viewModel */
+/** @var \Magento\Framework\Escaper $escaper */
+
 $viewModel = $block->getData('view_model');
-if ($viewModel->getPdpBanner()) {
+
+if ($viewModel->getPdpBanner()):
+    /** @var \Magento\Catalog\Model\Product|null $product */
     $product = $block->getProduct();
-    $price = $product->getFinalPrice();
-    if (empty($price)) {
-        $price = $product->getData('final_price') ?? $product->getData(\Magento\Catalog\Api\Data\ProductInterface::PRICE);
+
+    if ($product) {
+        $price = $product->getFinalPrice();
+        if ($price === null || $price === '' || $price === false) {
+            $price = $product->getData('final_price') ?? $product->getData(\Magento\Catalog\Api\Data\ProductInterface::PRICE);
+        }
+        $priceMinor = (string)(int)$viewModel->getPriceConverter()->minorUnitAmount((float)$price);
+    } else {
+        $priceMinor = '0';
     }
-    $price = $viewModel->getPriceConverter()->minorUnitAmount($price);
-    $bannerData = $viewModel->getWebComponentData('product-detail');
-?>
+
+    $bannerData = $viewModel->getWebComponentData('product-detail', true);
+    $page   = (string)($bannerData['page'] ?? '');
+    $cartId = (string)($bannerData['cart']['id'] ?? '');
+    ?>
     <div style="clear: both;"></div>
     <div class="super-container">
         <style>
@@ -21,6 +33,11 @@ if ($viewModel->getPdpBanner()) {
                 display: inline !important;
             }
         </style>
-        <?php echo '<super-product-callout page="' . $bannerData['page'] . '" cartId="' . $bannerData['cart']['id'] . '" productAmount="' . $price . '" productQuantity="1"></super-product-callout>'; ?>
+        <super-product-callout
+            page="<?= $escaper->escapeHtmlAttr($page); ?>"
+            cartId="<?= $escaper->escapeHtmlAttr($cartId); ?>"
+            productAmount="<?= $escaper->escapeHtmlAttr($priceMinor); ?>"
+            productQuantity="1"
+        ></super-product-callout>
     </div>
-<?php } ?>
+<?php endif; ?>

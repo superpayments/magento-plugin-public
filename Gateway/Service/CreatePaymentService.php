@@ -21,8 +21,6 @@ class CreatePaymentService implements ApiServiceInterface
     /** @var DataObjectFactory $dataObjectFactory */
     private $dataObjectFactory;
 
-
-
     /** @var LoggerInterface */
     private $logger;
 

@@ -117,7 +117,8 @@ class ProductDataMapper
             'parentId' => $parentId,
             'sku' => $product->getSku(),
             'parentSku' => $parentSku,
-            'url' => $catalogVisibility ? $product->getUrlModel()->getUrl($product, ['_store' => $storeId]) : $parentUrl,
+            'url' => $catalogVisibility
+                ? $product->getUrlModel()->getUrl($product, ['_store' => $storeId]) : $parentUrl,
             'parentUrl' => $parentUrl,
             'name' => $product->getName(),
             'shortDescription' => $this->cleanText($product->getShortDescription()) ?? $this->cleanText($product->getDescription()),

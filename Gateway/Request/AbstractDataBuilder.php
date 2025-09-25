@@ -58,7 +58,10 @@ abstract class AbstractDataBuilder implements BuilderInterface
 
     abstract protected function getMethod(array $buildSubject): string;
 
-    /** @return array|string */
+    /**
+     * @param array $buildSubject
+     * @return array|null
+     */
     abstract protected function getBody(array $buildSubject): ?array;
 
     /**

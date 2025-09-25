@@ -1,11 +1,24 @@
 <?php
-/**@var Magento\Framework\View\Element\Template $block */
-/**@var Superpayments\SuperPayment\ViewModel\PaymentConfirmation $viewModel */
+/** @var Magento\Framework\View\Element\Template $block */
+/** @var Superpayments\SuperPayment\ViewModel\PaymentConfirmation $viewModel */
+/** @var \Magento\Framework\Escaper $escaper */
+
 $viewModel = $block->getData('view_model');
-if ($viewModel->isSuperPaymentOrder()) {
-    $bannerData = $viewModel->getPaymentConfirmationData();
-?>
+
+if ($viewModel->isSuperPaymentOrder()):
+    $bannerData = (array) $viewModel->getPaymentConfirmationData();
+
+    $paymentIntentId   = (string)($bannerData['paymentIntentId'] ?? '');
+    $customerEmail     = (string)($bannerData['customerEmail'] ?? '');
+    $emailGuestToken   = (string)($bannerData['emailGuestToken'] ?? '');
+    $publishableApiKey = (string)($bannerData['publishableApiKey'] ?? '');
+    ?>
     <div class="super-container">
-        <?php echo '<super-payment-confirmation payment-intent-id="' .  $bannerData['paymentIntentId'] . '" customer-email="' . $bannerData['customerEmail'] . '" submit-email-guest-token="' . $bannerData['emailGuestToken'] . '" publishable-api-key="' . $bannerData['publishableApiKey'] . '"></super-payment-confirmation>'; ?>
+        <super-payment-confirmation
+            payment-intent-id="<?= $escaper->escapeHtmlAttr($paymentIntentId); ?>"
+            customer-email="<?= $escaper->escapeHtmlAttr($customerEmail); ?>"
+            submit-email-guest-token="<?= $escaper->escapeHtmlAttr($emailGuestToken); ?>"
+            publishable-api-key="<?= $escaper->escapeHtmlAttr($publishableApiKey); ?>"
+        ></super-payment-confirmation>
     </div>
-<?php } ?>
+<?php endif; ?>

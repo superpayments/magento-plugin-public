@@ -52,8 +52,13 @@ class CreateCheckoutSessionService implements ApiServiceInterface
         try {
             $this->commandPool->get('create_checkout_session')->execute($subject);
         } catch (Exception $e) {
-            $this->logger->error('[SuperPayment] CreateCheckoutSessionService ' . $e->getMessage(), ['exception' => $e]);
-            $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
+            $this->logger->error(
+                '[SuperPayment] CreateCheckoutSessionService ' . $e->getMessage(),
+                ['exception' => $e]
+            );
+            $this->logger->error(
+                '[SuperPayment] ' . $e->getTraceAsString()
+            );
             throw new ApiServiceException(__('SuperPayments error on create checkout sessions. Please try again later.'));
         }
 

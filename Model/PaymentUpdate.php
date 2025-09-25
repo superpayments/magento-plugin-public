@@ -47,8 +47,8 @@ class PaymentUpdate
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var Order */
-    private $order;
+    /** @var OrderInterface|null */
+    private ?OrderInterface $order;
 
     /** @var StoreManagerInterface */
     private $storeManager;
@@ -239,12 +239,20 @@ class PaymentUpdate
                 break;
             } catch (DeadlockException|LockWaitException $e) {
                 if ($i < self::MAX_SAVE_RETRIES) {
-                    $this->logger->error('[SP Webhook] Deadlock encountered retrying ..' . $e->getMessage(), ['exception' => $e]);
+                    $this->logger->error(
+                        '[SP Webhook] Deadlock encountered retrying ..' . $e->getMessage(),
+                        ['exception' => $e]
+                    );
                     sleep(2);
                     continue;
                 }
                 throw new CouldNotSaveException(
-                    __('[SP Webhook] Unable to save order #%1 after %2 attempts due to a database lock: %3', $orderId, $i, $e->getMessage()),
+                    __(
+                        '[SP Webhook] Unable to save order #%1 after %2 attempts due to a database lock: %3',
+                        $orderId,
+                        $i,
+                        $e->getMessage()
+                    ),
                     $e
                 );
             } catch (Exception $e) {
@@ -343,7 +351,8 @@ class PaymentUpdate
             $refundTransactionRef = $this->order->getPayment()->getAdditionalInformation('refundTransactionReference') ?? '';
 
             $this->order->addCommentToStatusHistory(
-                'Superpayments automatic refund initiated as order found in a canceled state after payment capture. Refund reference: ' . $refundTransactionRef
+                'Superpayments automatic refund initiated as order found in a canceled state after payment capture. '
+                . 'Refund reference: ' . $refundTransactionRef
             );
             $this->saveOrder();
         } catch (Throwable $e) {

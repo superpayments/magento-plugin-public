@@ -47,7 +47,9 @@ class CompleteCheckoutSessionHandler implements HandlerInterface
             }
 
             if ($this->config->isDebugEnabled()) {
-                $this->logger->info('[SuperPayment] CompleteCheckoutSessionHandler ' . $this->json->serialize($response['body']));
+                $this->logger->info(
+                    '[SuperPayment] CompleteCheckoutSessionHandler ' . $this->json->serialize($response['body'])
+                );
             }
         } catch (Exception $e) {
             $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);

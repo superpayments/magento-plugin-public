@@ -30,9 +30,6 @@ class ValidateApiKeyService
         $this->logger = $logger;
     }
 
-    /**
-     * @throws Exception
-     */
     public function execute(array $quote): array
     {
         try {
