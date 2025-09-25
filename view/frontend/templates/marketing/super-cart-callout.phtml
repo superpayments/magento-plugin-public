@@ -1,16 +1,28 @@
 <?php
-/**@var Magento\Framework\View\Element\Template $block */
-/**@var Superpayments\SuperPayment\ViewModel\MarketingBanner $viewModel */
+/** @var Magento\Framework\View\Element\Template $block */
+/** @var Superpayments\SuperPayment\ViewModel\MarketingBanner $viewModel */
+/** @var \Magento\Framework\Escaper $escaper */
+
 $viewModel = $block->getData('view_model');
-if ($viewModel->getCartBanner()) {
+
+if ($viewModel->getCartBanner()):
     $bannerData = $viewModel->getWebComponentData('cart', true);
-?>
+    $cartAmount = (string) (int) ($bannerData['minorUnitAmount'] ?? 0);
+    $page       = (string) ($bannerData['page'] ?? '');
+    $cartId     = (string) ($bannerData['cart']['id'] ?? '');
+    $cartItems  = (string) $viewModel->cartItemsEncode($bannerData['cart']['items'] ?? []);
+    ?>
     <div class="super-container">
         <style>
             .super-container div[style] {
                 font-size: 12px;
             }
         </style>
-        <?php echo '<super-cart-callout cartAmount="' . $bannerData['minorUnitAmount'] . '" page="' .  $bannerData['page'] . '" cartId="' . $bannerData['cart']['id'] . '" cartItems="' . $viewModel->cartItemsEncode($bannerData['cart']['items']) . '"></super-cart-callout>'; ?>
+        <super-cart-callout
+            cartAmount="<?= $escaper->escapeHtmlAttr($cartAmount); ?>"
+            page="<?= $escaper->escapeHtmlAttr($page); ?>"
+            cartId="<?= $escaper->escapeHtmlAttr($cartId); ?>"
+            cartItems="<?= $escaper->escapeHtmlAttr($cartItems); ?>"
+        ></super-cart-callout>
     </div>
-<?php } ?>
+<?php endif; ?>

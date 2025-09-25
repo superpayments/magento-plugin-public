@@ -23,20 +23,20 @@ class SyncProcessQueueCommand extends Command
      */
     public function __construct(
         ProductSyncSendQueue $productSyncSendQueue,
-        string $name = null
+        ?string $name = null
     ) {
         $this->productSyncSendQueue = $productSyncSendQueue;
         parent::__construct($name);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('superpayments:product:sendqueue');
         $this->setDescription('Manually trigger the Superpayments product sync send queue job.');
         parent::configure();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $output->writeln('<info>Starting: Superpayments product sync send queue.</info>');
         $this->productSyncSendQueue->execute();

@@ -27,13 +27,13 @@ class OfferResolver implements ResolverInterface
     /** @var GetCartForUser */
     private $getCartForUser;
 
-    /** @var ApiServiceInterface $apiService */
+    /** @var ApiServiceInterface */
     private $apiService;
 
-    /** @var StoreManagerInterface $storeManager */
+    /** @var StoreManagerInterface */
     private $storeManager;
 
-    /** @var PriceConverter $priceConverter */
+    /** @var PriceConverter */
     private $priceConverter;
 
     /** @var LoggerInterface */
@@ -67,8 +67,8 @@ class OfferResolver implements ResolverInterface
         Field $field,
         $context,
         ResolveInfo $info,
-        array $value = null,
-        array $args = null
+        ?array $value = null,
+        ?array $args = null
     ) {
         if (empty($args['input']['cart_id'])) {
             throw new GraphQlInputException(__('Specify the "cart_id" value.'));
@@ -77,29 +77,64 @@ class OfferResolver implements ResolverInterface
         try {
             $maskedCartId = $args['input']['cart_id'];
             $customerId = $context->getUserId() ?? null;
+
             $store = $context->getExtensionAttributes()->getStore();
-            $storeId = (int) $store->getId();
+            $storeId = (int)$store->getId();
+
+            /** @var Quote $quote */
             $quote = $this->getCartForUser->execute($maskedCartId, $customerId, $storeId);
             $quote->collectTotals();
-            $cartAmount = $this->priceConverter->minorUnitAmount($quote->getGrandTotal());
-            $cartId = ($quote->getId() ?: 'unknown-' . time());
+
+            $cartAmountMinor = $this->priceConverter->minorUnitAmount($quote->getGrandTotal());
+            $cartIdRaw = $quote->getId() ?: ('unknown-' . time());
             $cartItems = $this->getCartItems($quote);
+
             $result = $this->apiService->execute([
                 'store' => $this->storeManager->getStore($quote->getStoreId()),
             ]);
+
             $superCheckoutSessionId = $result['checkoutSessionId'] ?? '';
             $superCheckoutSessionToken = $result['checkoutSessionToken'] ?? '';
+
             $phoneNumber = $this->getPhoneNumber($quote);
             $page = 'checkout';
+
+            // Prepare attribute-safe values
+            $cartAmountAttr = $this->escaper->escapeHtmlAttr((string)(int)$cartAmountMinor);
+            $pageAttr = $this->escaper->escapeHtmlAttr($page);
+            $cartIdAttr = $this->escaper->escapeHtmlAttr((string)$cartIdRaw);
+            $cartItemsAttr = $this->cartItemsEncode($cartItems);
+            $phoneAttr = $this->escaper->escapeHtmlAttr($phoneNumber);
+            $tokenAttr = $this->escaper->escapeHtmlAttr($superCheckoutSessionToken);
+
+            // Build HTML fragments on multiple lines to keep source lines short
+            $titleHtml =
+                '<div class="super-payment-method-title">' .
+                '<super-payment-method-title ' .
+                'cartAmount="' . $cartAmountAttr . '" ' .
+                'page="' . $pageAttr . '" ' .
+                'cartId="' . $cartIdAttr . '" ' .
+                'cartItems="' . $cartItemsAttr . '"' .
+                '></super-payment-method-title>' .
+                '</div>';
+
+            $descriptionHtml =
+                '<super-checkout ' .
+                'amount="' . $cartAmountAttr . '" ' .
+                'checkout-session-token="' . $tokenAttr . '" ' .
+                'phone-number="' . $phoneAttr . '"' .
+                '></super-checkout>';
+
             $json = [
-                'title' => '<div class="super-payment-method-title"><super-payment-method-title cartAmount="' . $cartAmount . '" page="' . $page . '" cartId="' . $cartId . '" cartItems="' . $this->cartItemsEncode($cartItems) . '"></super-payment-method-title></div>',
-                'description' => '<super-checkout amount="' . $cartAmount . '" checkout-session-token="' . $superCheckoutSessionToken . '" phone-number="' . $this->escaper->escapeHtmlAttr($phoneNumber) . '"></super-checkout>',
+                'title'                     => $titleHtml,
+                'description'               => $descriptionHtml,
                 'super_checkout_session_id' => $superCheckoutSessionId,
             ];
         } catch (Exception $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
             $json = ['result' => 'error', 'exception' => $e->getMessage()];
         }
+
         return ['content' => $this->jsonSerializer->serialize($json)];
     }
 
@@ -108,15 +143,20 @@ class OfferResolver implements ResolverInterface
         $items = [];
         foreach ($quote->getAllVisibleItems() as $item) {
             try {
-                $item = [
-                    'name' => $item->getName(),
-                    'url' => $item->getProduct()->getUrlModel()->getUrl($item->getProduct()),
-                    'quantity' => (int) $item->getQty(),
+                $product = $item->getProduct();
+                $url = $product->getUrlModel()->getUrl($product);
+
+                $items[] = [
+                    'name'            => $item->getName(),
+                    'url'             => $url,
+                    'quantity'        => (int)$item->getQty(),
                     'minorUnitAmount' => $this->priceConverter->minorUnitAmount($item->getPrice()),
                 ];
-                $items[] = $item;
             } catch (Throwable $e) {
-                $this->logger->error('[SuperPayment] OfferResolver::getCartItems ' . $e->getMessage(), ['exception' => $e]);
+                $this->logger->error(
+                    '[SuperPayment] OfferResolver::getCartItems ' . $e->getMessage(),
+                    ['exception' => $e]
+                );
             }
         }
 
@@ -129,6 +169,7 @@ class OfferResolver implements ResolverInterface
             $phoneNumber = '';
             $billingAddress = $quote->getBillingAddress();
             $phoneNumber = $billingAddress ? $billingAddress->getTelephone() : '';
+
             if (empty($phoneNumber)) {
                 $phoneNumber = $this->getCustomerDefaultBillingTelephone($quote);
             }
@@ -137,7 +178,10 @@ class OfferResolver implements ResolverInterface
                 $phoneNumber = $shippingAddress ? $shippingAddress->getTelephone() : '';
             }
         } catch (Throwable $e) {
-            $this->logger->error('[SuperPayment] Offerbanner::getPhoneNumber ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error(
+                '[SuperPayment] Offerbanner::getPhoneNumber ' . $e->getMessage(),
+                ['exception' => $e]
+            );
         }
 
         return $phoneNumber ?? '';
@@ -153,14 +197,33 @@ class OfferResolver implements ResolverInterface
 
             $customerAddresses = $quote->getCustomer()->getAddresses();
             foreach ($customerAddresses as $customerAddress) {
-                if ($customerAddress->isDefaultBilling() && $telephone = $customerAddress->getTelephone()) {
+                if (
+                    $customerAddress->isDefaultBilling()
+                    && ($telephone = $customerAddress->getTelephone())
+                ) {
                     return $telephone;
                 }
             }
         } catch (Throwable $e) {
-            $this->logger->error('[SuperPayment] Offerbanner::getCustomerDefaultBillingTelephone ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error(
+                '[SuperPayment] Offerbanner::getCustomerDefaultBillingTelephone ' . $e->getMessage(),
+                ['exception' => $e]
+            );
         }
 
         return null;
+    }
+
+    /**
+     * Encode cart items as JSON and escape for safe use in an HTML attribute.
+     */
+    private function cartItemsEncode(?array $cartItems = []): string
+    {
+        $json = json_encode(
+            $cartItems ?? [],
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
+
+        return $this->escaper->escapeHtmlAttr((string)$json);
     }
 }

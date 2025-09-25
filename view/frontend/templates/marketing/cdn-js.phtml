@@ -1,61 +1,56 @@
 <?php
-/**@var Magento\Framework\View\Element\Template $block */
-/**@var Superpayments\SuperPayment\ViewModel\MarketingBanner $viewModel */
-/**@var Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
+/** @var Magento\Framework\View\Element\Template $block */
+/** @var Superpayments\SuperPayment\ViewModel\MarketingBanner $viewModel */
+/** @var Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
+/** @var \Magento\Framework\Escaper $escaper */
+
 $viewModel = $block->getData('view_model');
 
-if (!$viewModel->shouldUseSecureRenderer()) {
-?>
+$config = [
+    'integrationId'       => (string) $viewModel->getIntegrationId(),
+    'platform'            => 'magento',
+    'platformVersion'     => (string) ($viewModel->getConfig()->getMagentoVersion() . '-' . $viewModel->getConfig()->getMagentoEdition()),
+    'superPluginVersion'  => (string) $viewModel->getConfig()->getModuleVersion(),
+    'sdkVersion'          => (string) $viewModel->getConfig()->getModuleVersion(),
+    'page'                => (string) $viewModel->getPage(),
+    'isDebugEnabled'      => (bool) $viewModel->getConfig()->isDebugEnabled(),
+    'currency'            => (string) $viewModel->getStoreCurrencyCode(),
+    'enableForCurrencies' => ['GBP'],
+];
 
-    <script src="<?php echo $viewModel->getCdnUrl(); ?>"></script>
+$configJson = json_encode(
+    $config,
+    JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+);
+
+$publishableKey = (string) $viewModel->getPublishableKey();
+$cdnUrl        = (string) $viewModel->getCdnUrl();
+
+if (!$viewModel->shouldUseSecureRenderer()):
+    ?>
+    <script src="<?= $escaper->escapeUrl($cdnUrl); ?>"></script>
     <script>
         superjs.init(
-            '<?php echo $viewModel->getPublishableKey(); ?>',
-            {
-                "integrationId": "<?php echo $viewModel->getIntegrationId(); ?>",
-                "platform": "magento",
-                "platformVersion": "<?php echo $viewModel->getConfig()->getMagentoVersion() . '-' . $viewModel->getConfig()->getMagentoEdition(); ?>",
-                "superPluginVersion": "<?php echo $viewModel->getConfig()->getModuleVersion(); ?>",
-                "sdkVersion": "<?php echo $viewModel->getConfig()->getModuleVersion(); ?>",
-                "page": "<?php echo $viewModel->getPage(); ?>",
-                "isDebugEnabled": <?php echo ($viewModel->getConfig()->isDebugEnabled() ? 'true' : 'false'); ?>,
-                "currency": "<?php echo $viewModel->getStoreCurrencyCode(); ?>",
-                "enableForCurrencies": ['GBP'],
-            }
+            "<?= $escaper->escapeJs($publishableKey); ?>",
+            <?= /* @noEscape */ $configJson ?>
         );
     </script>
+<?php else:
+    $scriptBody = 'superjs.init("' . $escaper->escapeJs($publishableKey) . '", ' . $configJson . ');';
+    ?>
 
-<?php
-} else {
-
-    echo $secureRenderer->renderTag(
+    <?= /* @noEscape */ $secureRenderer->renderTag(
         'script',
-        ['type' => 'text/javascript', 'src' => $viewModel->getCdnUrl()],
-        "",
+        ['type' => 'text/javascript', 'src' => $cdnUrl],
+        '',
         false
-    );
+    ) ?>
 
-    echo $secureRenderer->renderTag(
+    <?= /* @noEscape */ $secureRenderer->renderTag(
         'script',
         ['type' => 'text/javascript'],
-        '
-    superjs.init(
-        "' . $viewModel->getPublishableKey() . '",
-        {
-        "integrationId": "' . $viewModel->getIntegrationId() . '",
-        "platform": "magento",
-        "platformVersion": "' . $viewModel->getConfig()->getMagentoVersion() . '-' . $viewModel->getConfig()->getMagentoEdition() . '",
-        "superPluginVersion": "' . $viewModel->getConfig()->getModuleVersion() . '",
-        "sdkVersion": "' . $viewModel->getConfig()->getModuleVersion() . '",
-        "page": "' . $viewModel->getPage() . '",
-        "isDebugEnabled": ' . ($viewModel->getConfig()->isDebugEnabled() ? 'true' : 'false') . ',
-        "currency": "' . $viewModel->getStoreCurrencyCode() . '",
-        "enableForCurrencies": [\'GBP\'],
-        }
-    );
-    ',
+        $scriptBody,
         false
-    );
+    ) ?>
 
-}
-?>
+<?php endif; ?>

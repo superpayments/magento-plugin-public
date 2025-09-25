@@ -39,6 +39,7 @@ class SaveOfferId implements ObserverInterface
     }
 
     /**
+     * @param Observer $observer
      * @return $this
      */
     public function execute(Observer $observer)
@@ -54,7 +55,7 @@ class SaveOfferId implements ObserverInterface
             return $this;
         } catch (Throwable $e) {
             $this->logger->error(
-                '[Superpayments] SaveOfferId ' . $e->getMessage() ."\n". $e->getTraceAsString()
+                '[Superpayments] SaveOfferId ' . $e->getMessage() . "\n" . $e->getTraceAsString()
             );
         }
     }

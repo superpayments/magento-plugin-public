@@ -45,6 +45,7 @@ class SuccessOfferExpire implements ObserverInterface
     }
 
     /**
+     * @param Observer $observer
      * @return $this
      */
     public function execute(Observer $observer)
@@ -60,7 +61,7 @@ class SuccessOfferExpire implements ObserverInterface
             $this->expireOffer($order);
         } catch (Throwable $e) {
             $this->logger->error(
-                '[SuperPayments] SuccessOfferExpire ' . $e->getMessage() ."\n". $e->getTraceAsString()
+                '[SuperPayments] SuccessOfferExpire ' . $e->getMessage() . "\n" . $e->getTraceAsString()
             );
         }
         return $this;

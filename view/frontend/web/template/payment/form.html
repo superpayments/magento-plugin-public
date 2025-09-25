@@ -3,7 +3,7 @@
         <input type="radio"
                name="payment[method]"
                class="radio"
-               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()">
         <label class="label" data-bind="attr: {'for': getCode()}">
             <img data-bind="attr: {src: getLogo()}" style="margin: 0px 10px -7px 3px;"  class="super_Payments super_payments_logo" alt="Super Payments"/>
             <span class="superpayment_title" data-bind="text: getTitle()"></span>

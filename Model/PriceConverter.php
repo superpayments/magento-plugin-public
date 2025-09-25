@@ -13,9 +13,9 @@ class PriceConverter
     public function minorUnitAmount($price): int
     {
         if (extension_loaded('bcmath')) {
-            $finalAmount = bcmul((string) $price, (string) 100, 0);
+            $finalAmount = bcmul((string) $price, '100', 0);
         } else {
-            $finalAmount = number_format(($price*100),0,'','');
+            $finalAmount = number_format(($price*100), 0, '', '');
         }
 
         return (int) $finalAmount;

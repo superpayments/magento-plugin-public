@@ -165,7 +165,9 @@ class Refund implements ActionInterface, HttpPostActionInterface, CsrfAwareActio
         $data['transactionReference'] = $requestJsonData['transactionReference'];
 
         if (empty($data['transactionStatus']) || empty($data['orderIncrementId'])) {
-            $this->logger->error('[SuperPayments Webhook] Invalid webhook data received - missing transactionStatus or externalReference');
+            $this->logger->error(
+                '[SuperPayments Webhook] Invalid webhook data received - missing transactionStatus or externalReference'
+            );
             return $this->unauthorizedResponse();
         }
 

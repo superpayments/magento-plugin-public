@@ -19,13 +19,13 @@ class FullSyncCommand extends Command
 
     public function __construct(
         ProductSyncFullSync $productSyncFullSync,
-        string $name = null
+        ?string $name = null
     ) {
         $this->productSyncFullSync = $productSyncFullSync;
         parent::__construct($name);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('superpayments:product:fullsync');
         $this->setDescription('Manually trigger the Superpayments product full sync job.');

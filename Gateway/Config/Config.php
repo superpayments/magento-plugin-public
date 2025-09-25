@@ -10,7 +10,6 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Payment\Gateway\Config\Config as PaymentsConfig;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Superpayments\SuperPayment\Gateway\Service\BusinessConfigService;
 use Superpayments\SuperPayment\Model\Config\Source\Environment;
@@ -64,7 +63,7 @@ class Config extends PaymentsConfig
     public const KEY_DEADLOCK_MITIGATE_ENABLED = 'deadlock_mitigate_enabled';
 
     /** @var null|int $store */
-    private $store;
+    private ?int $store;
 
     /** @var ModuleListInterface */
     private $moduleList;
@@ -103,7 +102,7 @@ class Config extends PaymentsConfig
         $this->store = null;
     }
 
-    public function setStoreId(int $storeId = null): void
+    public function setStoreId(?int $storeId = null): void
     {
         $this->store = $storeId;
     }

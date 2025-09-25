@@ -44,8 +44,8 @@ class RedirectUrlResolver implements ResolverInterface
         Field $field,
         $context,
         ResolveInfo $info,
-        array $value = null,
-        array $args = null
+        ?array $value = null,
+        ?array $args = null
     ) {
         if (empty($args['input']['order_number'])) {
             throw new GraphQlInputException(__('"Order number" value should be specified'));
@@ -61,7 +61,7 @@ class RedirectUrlResolver implements ResolverInterface
         }
 
         $order = $this->getOrder((string) $orderIncrementId);
-        if (is_null($order)) {
+        if ($order === null) {
             return null;
         }
 

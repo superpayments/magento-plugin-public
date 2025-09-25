@@ -90,19 +90,43 @@ class PaymentConfigChangedService implements ApiServiceInterface
                 $this->getConfig('payment/super_payment_gateway/' . Config::KEY_ACTIVE, $scope, $scopeId) ?
                     'yes' : 'no';
             $payload['environment'] =
-                $this->getConfig('payment/super_payment_gateway/' . Config::KEY_ENVIRONMENT, $scope, $scopeId);
+                $this->getConfig(
+                    'payment/super_payment_gateway/' . Config::KEY_ENVIRONMENT,
+                    $scope,
+                    $scopeId
+                );
             $payload['success_url'] =
-                $this->getConfig('payment/super_payment_gateway/' . Config::KEY_GRAPHQL_SUCCESS_URL, $scope, $scopeId);
+                $this->getConfig(
+                    'payment/super_payment_gateway/' . Config::KEY_GRAPHQL_SUCCESS_URL,
+                    $scope,
+                    $scopeId
+                );
             $payload['failure_url'] =
-                $this->getConfig('payment/super_payment_gateway/' . Config::KEY_GRAPHQL_FAILURE_URL, $scope, $scopeId);
+                $this->getConfig(
+                    'payment/super_payment_gateway/' . Config::KEY_GRAPHQL_FAILURE_URL,
+                    $scope,
+                    $scopeId
+                );
             $payload['cancel_url'] =
-                $this->getConfig('payment/super_payment_gateway/' . Config::KEY_GRAPHQL_CANCEL_URL, $scope, $scopeId);
+                $this->getConfig(
+                    'payment/super_payment_gateway/' . Config::KEY_GRAPHQL_CANCEL_URL,
+                    $scope,
+                    $scopeId
+                );
             $payload['flow_type'] =
                 $this->getConfig('payment/super_payment_gateway/' . Config::KEY_FLOW_TYPE, $scope, $scopeId);
             $payload['handoff_success_route'] =
-                $this->getConfig('payment/super_payment_gateway/' . Config::KEY_HANDOFF_SUCCESS_ROUTE, $scope, $scopeId);
+                $this->getConfig(
+                    'payment/super_payment_gateway/' . Config::KEY_HANDOFF_SUCCESS_ROUTE,
+                    $scope,
+                    $scopeId
+                );
             $payload['enable_order_confirmation_page_web_component'] =
-                $this->getConfig('payment/super_payment_gateway/confirmation_page_web_component', $scope, $scopeId) ?
+                $this->getConfig(
+                    'payment/super_payment_gateway/confirmation_page_web_component',
+                    $scope,
+                    $scopeId
+                ) ?
                     'yes' : 'no';
             $payload['enable_graphql'] =
                 $this->getConfig('payment/super_payment_gateway/graphql', $scope, $scopeId) ?
@@ -117,23 +141,49 @@ class PaymentConfigChangedService implements ApiServiceInterface
                 $this->getConfig('payment/super_payment_gateway/cart_banner', $scope, $scopeId) ?
                     'yes' : 'no';
             $payload['enable_banner_home'] =
-                ($this->getConfig('payment/super_payment_gateway/banner_mode', $scope, $scopeId) == 'homepage') ?
+                (
+                    $this->getConfig(
+                        'payment/super_payment_gateway/banner_mode',
+                        $scope,
+                        $scopeId
+                    ) == 'homepage'
+                ) ?
                     'yes' : 'no';
             $payload['enable_banner_site'] =
-                ($this->getConfig('payment/super_payment_gateway/banner_mode', $scope, $scopeId) == 'allpages') ?
+                ($this->getConfig(
+                    'payment/super_payment_gateway/banner_mode',
+                    $scope,
+                    $scopeId
+                ) == 'allpages') ?
                     'yes' : 'no';
             $payload['update_total'] = null;
             $payload['enable_order_received_page_referral_link'] =
-                $this->getConfig('payment/super_payment_gateway/confirmation_page_banner', $scope, $scopeId) ?
+                $this->getConfig(
+                    'payment/super_payment_gateway/confirmation_page_banner',
+                    $scope,
+                    $scopeId
+                ) ?
                     'yes' : 'no';
             $payload['enable_order_email_referral_link'] =
-                $this->getConfig('payment/super_payment_gateway/confirmation_email_banner', $scope, $scopeId) ?
+                $this->getConfig(
+                    'payment/super_payment_gateway/confirmation_email_banner',
+                    $scope,
+                    $scopeId
+                ) ?
                     'yes' : 'no';
             $payload['set_as_default_payment_method'] =
-                $this->getConfig('payment/super_payment_gateway/' . Config::KEY_IS_DEFAULT, $scope, $scopeId) ?
+                $this->getConfig(
+                    'payment/super_payment_gateway/' . Config::KEY_IS_DEFAULT,
+                    $scope,
+                    $scopeId
+                ) ?
                     'yes' : 'no';
             $payload['title'] = $this->getConfig('payment/super_payment_gateway/title', $scope, $scopeId);
-            $payload['sort_order'] = $this->getConfig('payment/super_payment_gateway/sort_order', $scope, $scopeId);
+            $payload['sort_order'] = $this->getConfig(
+                'payment/super_payment_gateway/sort_order',
+                $scope,
+                $scopeId
+            );
 
             $methods = [];
             foreach ($this->paymentHelper->getPaymentMethods() as $paymentMethodCode => $paymentMethod) {
@@ -146,7 +196,10 @@ class PaymentConfigChangedService implements ApiServiceInterface
             }
             $payload['payment_gateway_order'] = $methods;
         } catch (Throwable $e) {
-            $this->logger->error('[SuperPayment] PaymentConfigChangedService::getPayload ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error(
+                '[SuperPayment] PaymentConfigChangedService::getPayload ' . $e->getMessage(),
+                ['exception' => $e]
+            );
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
         }
 

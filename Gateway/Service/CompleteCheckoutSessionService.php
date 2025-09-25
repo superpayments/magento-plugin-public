@@ -70,7 +70,10 @@ class CompleteCheckoutSessionService implements ApiServiceInterface
         try {
             $this->commandPool->get('complete_checkout_session')->execute($subject);
         } catch (Exception $e) {
-            $this->logger->error('[SuperPayment] CompleteCheckoutSessionService ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->error(
+                '[SuperPayment] CompleteCheckoutSessionService ' . $e->getMessage(),
+                ['exception' => $e]
+            );
             $this->logger->error('[SuperPayment] ' . $e->getTraceAsString());
             throw new ApiServiceException(__($e->getMessage()));
         }

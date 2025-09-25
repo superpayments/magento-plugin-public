@@ -75,7 +75,10 @@ class HandleRedirectBackButton
                 }
             }
         } catch (Exception $e) {
-            $this->logger->critical('[SuperPayments] HandleRedirectBackButton ' . $e->getMessage(), ['exception' => $e]);
+            $this->logger->critical(
+                '[SuperPayments] HandleRedirectBackButton ' . $e->getMessage(),
+                ['exception' => $e]
+            );
         }
     }
 }

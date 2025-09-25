@@ -44,8 +44,8 @@ class PlaceOrderOutputResolver implements ResolverInterface
         Field $field,
         $context,
         ResolveInfo $info,
-        array $value = null,
-        array $args = null
+        ?array $value = null,
+        ?array $args = null
     ) {
         $orderArr = $value['order'] ?? null;
         if (empty($orderArr)) {
@@ -63,7 +63,7 @@ class PlaceOrderOutputResolver implements ResolverInterface
         }
 
         $order = $this->getOrder((string) $orderIncrementId);
-        if (is_null($order)) {
+        if ($order === null) {
             return null;
         }
 

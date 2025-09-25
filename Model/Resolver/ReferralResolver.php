@@ -44,8 +44,8 @@ class ReferralResolver implements ResolverInterface
         Field $field,
         $context,
         ResolveInfo $info,
-        array $value = null,
-        array $args = null
+        ?array $value = null,
+        ?array $args = null
     ) {
         if (empty($args['input']['order_number'])) {
             throw new GraphQlInputException(__('"Order Number" value should be specified'));
@@ -56,7 +56,7 @@ class ReferralResolver implements ResolverInterface
 
         try {
             $order = $this->getOrder((string) $orderIncrementId);
-            if (is_null($order) || $order->getPayment()->getMethod() !== Config::PAYMENT_CODE) {
+            if ($order === null || $order->getPayment()->getMethod() !== Config::PAYMENT_CODE) {
                 return $result;
             }
             $data = [

@@ -149,7 +149,8 @@ class ProductSyncSendQueue
             }
         } catch (Throwable $e) {
             $this->logger->error(
-                '[SuperPayments] Error in SendQueue handleApiResult: ' . $e->getMessage() . "\n" . $e->getTraceAsString()
+                '[SuperPayments] Error in SendQueue handleApiResult: ' .
+                $e->getMessage() . "\n" . $e->getTraceAsString()
             );
         }
     }
