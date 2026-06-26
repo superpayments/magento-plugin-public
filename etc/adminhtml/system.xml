@@ -118,15 +118,31 @@
                         <field id="graphql">1</field>
                     </depends>
                 </field>
-                <field id="product_sync_enabled" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="force_email_send" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Force Email Send</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="loader_container_id" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Loader Container ID</label>
+                    <comment>Default: body</comment>
+                </field>
+                <field id="deadlock_mitigate_enabled" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Deadlock Mitigation Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="currency" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Currency</label>
+                    <comment>Default: GBP</comment>
+                </field>
+                <field id="product_sync_enabled" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Product Sync Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>If set to Yes, this store's products will be synced to Superpayments.</comment>
                 </field>
-                <field id="product_full_sync_completed" translate="label" type="select" sortOrder="95" showInDefault="0" showInWebsite="0" showInStore="1">
-                    <label>Full Sync Executed</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Indicates if the initial full sync has been ran for this store. Normally set automatically.</comment>
+                <field id="product_full_sync_completed" translate="label comment" sortOrder="140" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <label>Full Sync Status</label>
+                    <frontend_model>Superpayments\SuperPayment\Block\Adminhtml\System\Config\FullSyncStatus</frontend_model>
+                    <comment>Indicates if the initial full sync has been completed for this store. This status is automatically managed by the system.</comment>
                     <depends>
                         <field id="product_sync_enabled">1</field>
                     </depends>

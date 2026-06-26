@@ -63,6 +63,7 @@ class Client implements ClientInterface
             $client->setUri($transferObject->getUri());
             $client->setMethod($transferObject->getMethod());
 
+            // phpcs:ignore Magento2.PHP.LiteralNamespaces.LiteralClassUsage
             if (get_class($client) == 'Magento\Framework\HTTP\ZendClient') {
                 $client->setHeaders($transferObject->getHeaders());
                 if ($transferObject->getMethod() == self::POST) {

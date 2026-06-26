@@ -197,8 +197,7 @@ class OfferResolver implements ResolverInterface
 
             $customerAddresses = $quote->getCustomer()->getAddresses();
             foreach ($customerAddresses as $customerAddress) {
-                if (
-                    $customerAddress->isDefaultBilling()
+                if ($customerAddress->isDefaultBilling()
                     && ($telephone = $customerAddress->getTelephone())
                 ) {
                     return $telephone;
@@ -216,6 +215,9 @@ class OfferResolver implements ResolverInterface
 
     /**
      * Encode cart items as JSON and escape for safe use in an HTML attribute.
+     *
+     * @param array|null $cartItems
+     * @return string
      */
     private function cartItemsEncode(?array $cartItems = []): string
     {

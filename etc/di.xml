@@ -542,4 +542,16 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Superpayments\SuperPayment\Console\Command\FullSyncCommand">
+        <arguments>
+            <argument name="productSyncFullSync" xsi:type="object">Superpayments\SuperPayment\Cron\ProductSyncFullSync\Proxy</argument>
+        </arguments>
+    </type>
+
+    <type name="Superpayments\SuperPayment\Console\Command\SyncProcessQueueCommand">
+        <arguments>
+            <argument name="productSyncSendQueue" xsi:type="object">Superpayments\SuperPayment\Cron\ProductSyncSendQueue\Proxy</argument>
+        </arguments>
+    </type>
 </config>

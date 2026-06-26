@@ -61,6 +61,7 @@ class Validate implements ActionInterface
         $result = $this->jsonResultFactory->create();
         $storeId = (int) $this->request->getParam('storeId', 0);
         $this->config->setStoreId($storeId);
+        $response = [];
 
         try {
             // Create the dummy quote object

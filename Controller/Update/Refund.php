@@ -124,7 +124,7 @@ class Refund implements ActionInterface, HttpPostActionInterface, CsrfAwareActio
         }
 
         try {
-            $requestBody = file_get_contents('php://input');
+            $requestBody = file_get_contents('php://input'); // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
             $requestJsonData = $this->jsonSerializer->unserialize($requestBody);
             if ($this->config->isDebugEnabled()) {
                 $this->logger->info('[SuperPayments Webhook] RB - ' . $requestBody);

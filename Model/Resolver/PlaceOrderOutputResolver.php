@@ -4,37 +4,36 @@ declare(strict_types=1);
 
 namespace Superpayments\SuperPayment\Model\Resolver;
 
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Config\Element\Field;
-use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\OrderFactory;
-use Magento\Sales\Model\OrderRepository;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Superpayments\SuperPayment\Gateway\Config\Config;
 use Superpayments\SuperPayment\Gateway\Service\ApiServiceInterface;
 
 class PlaceOrderOutputResolver implements ResolverInterface
 {
-    /** @var OrderFactory */
-    private $orderFactory;
-
     /** @var ApiServiceInterface $apiService */
     private $apiService;
 
-    /** @var OrderRepository $orderRepository */
+    /** @var OrderRepositoryInterface $orderRepository */
     private $orderRepository;
 
+    /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
+    private $searchCriteriaBuilder;
+
     public function __construct(
-        OrderFactory $orderFactory,
         ApiServiceInterface $apiService,
-        OrderRepository $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
-        $this->orderFactory = $orderFactory;
         $this->apiService = $apiService;
         $this->orderRepository = $orderRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**
@@ -99,7 +98,14 @@ class PlaceOrderOutputResolver implements ResolverInterface
     private function getOrder(string $orderIncrementId): ?OrderInterface
     {
         try {
-            return $this->orderFactory->create()->loadByIncrementId($orderIncrementId);
+            $searchCriteria = $this->searchCriteriaBuilder
+                ->addFilter('increment_id', $orderIncrementId, 'eq')
+                ->create();
+
+            $orderList = $this->orderRepository->getList($searchCriteria);
+            $items = $orderList->getItems();
+
+            return !empty($items) ? reset($items) : null;
         } catch (NoSuchEntityException $e) {
             return null;
         }

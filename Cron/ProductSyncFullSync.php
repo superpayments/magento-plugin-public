@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Superpayments\SuperPayment\Cron;
 
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
-use Magento\Framework\App\Cache\Type\Config as ConfigCacheType;
 use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\FlagManager;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -23,36 +23,32 @@ class ProductSyncFullSync
 {
     public const INSERT_BATCH_SIZE = 50;
 
-    /** @var WriterInterface */
-    private $configWriter;
+    /** @var FlagManager */
+    private $flagManager;
     /** @var ScopeConfigInterface */
     private $scopeConfig;
     /** @var StoreManagerInterface */
     private $storeManager;
     /** @var ProductCollectionFactory */
     private $productCollectionFactory;
-    /** @var TypeListInterface */
-    private $typeList;
     /** @var ResourceConnection */
     private $resourceConnection;
     /** @var LoggerInterface */
     private $logger;
 
     public function __construct(
-        WriterInterface $configWriter,
+        FlagManager $flagManager,
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         ProductCollectionFactory $productCollectionFactory,
         ResourceConnection $resourceConnection,
-        TypeListInterface $typeList,
         LoggerInterface $logger
     ) {
-        $this->configWriter = $configWriter;
+        $this->flagManager = $flagManager;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->productCollectionFactory = $productCollectionFactory;
         $this->resourceConnection = $resourceConnection;
-        $this->typeList = $typeList;
         $this->logger = $logger;
     }
 
@@ -63,7 +59,6 @@ class ProductSyncFullSync
 
             $connection = $this->resourceConnection->getConnection();
             $queueTable = $connection->getTableName(ProductSyncSendQueue::DB_TABLE_PRODUCT_SYNC_QUEUE);
-            $executed = false;
 
             foreach ($this->storeManager->getStores() as $store) {
                 $storeId = (int) $store->getId();
@@ -73,16 +68,13 @@ class ProductSyncFullSync
                     ScopeInterface::SCOPE_STORE,
                     $storeId
                 );
-                $completed = $this->scopeConfig->isSetFlag(
-                    'payment/super_payment_gateway/' . Config::KEY_PRODUCT_FULL_SYNC_COMPLETED,
-                    ScopeInterface::SCOPE_STORE,
-                    $storeId
+                $completed = $this->flagManager->getFlagData(
+                    'super_payment_gateway/store_' . $storeId . '/' . Config::KEY_PRODUCT_FULL_SYNC_COMPLETED
                 );
 
                 if (!$enabled || $completed) {
                     continue;
                 }
-                $executed = true;
 
                 $collection = $this->productCollectionFactory->create();
                 $collection->setStoreId($storeId)
@@ -127,16 +119,10 @@ class ProductSyncFullSync
                 }
 
                 // Mark full sync as completed for this store
-                $this->configWriter->save(
-                    'payment/super_payment_gateway/' . Config::KEY_PRODUCT_FULL_SYNC_COMPLETED,
-                    1,
-                    ScopeInterface::SCOPE_STORES,
-                    $storeId
+                $this->flagManager->saveFlag(
+                    'super_payment_gateway/store_' . $storeId . '/' . Config::KEY_PRODUCT_FULL_SYNC_COMPLETED,
+                    true
                 );
-            }
-
-            if ($executed) {
-                $this->typeList->cleanType(ConfigCacheType::TYPE_IDENTIFIER);
             }
 
             $this->logger->debug('[SuperPayments] FullSync Cron End.');

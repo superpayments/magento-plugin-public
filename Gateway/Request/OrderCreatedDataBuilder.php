@@ -71,15 +71,6 @@ class OrderCreatedDataBuilder extends AbstractDataBuilder
             }
         }
 
-        if (empty($items)) {
-            $items[] = [
-                'name' => 'empty',
-                'url' => 'http://empty.com/',
-                'quantity' => (int) 1,
-                'minorUnitAmount' => 1,
-            ];
-        }
-
         return $items;
     }
 }

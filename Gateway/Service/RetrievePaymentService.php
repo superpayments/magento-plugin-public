@@ -46,8 +46,7 @@ class RetrievePaymentService implements ApiServiceInterface
             throw new InvalidArgumentException('transaction_id should be provided');
         }
 
-        if (
-            !isset($subject['store'])
+        if (!isset($subject['store'])
             || !$subject['store'] instanceof StoreInterface
         ) {
             throw new InvalidArgumentException('Store data object should be provided');

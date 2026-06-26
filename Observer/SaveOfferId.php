@@ -58,5 +58,6 @@ class SaveOfferId implements ObserverInterface
                 '[Superpayments] SaveOfferId ' . $e->getMessage() . "\n" . $e->getTraceAsString()
             );
         }
+        return $this;
     }
 }

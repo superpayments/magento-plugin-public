@@ -61,5 +61,6 @@ class AuthorizeCommand implements CommandInterface
         }
 
         $payment->setIsTransactionPending(true);
+        return null;
     }
 }
