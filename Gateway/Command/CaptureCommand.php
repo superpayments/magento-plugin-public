@@ -54,5 +54,6 @@ class CaptureCommand implements CommandInterface
         if ($this->config->isDebugEnabled()) {
             $this->logger->info('[SuperPayment] CaptureCommand ' . $order->getOrderIncrementId());
         }
+        return null;
     }
 }

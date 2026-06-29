@@ -33,5 +33,15 @@
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>payment/super_payment_gateway/confirmation_page_banner</config_path>
         </field>
+        <field id="confirmation_email_banner" translate="label" type="select" sortOrder="280" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+            <label>Order Confirmation Email Referral Banner</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/super_payment_gateway/confirmation_email_banner</config_path>
+        </field>
+        <field id="confirmation_page_web_component" translate="label" type="select" sortOrder="290" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+            <label>Order Confirmation Page Web Component</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/super_payment_gateway/confirmation_page_web_component</config_path>
+        </field>
     </group>
 </include>

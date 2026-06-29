@@ -13,6 +13,9 @@ use Superpayments\SuperPayment\Gateway\Service\ApiServiceException;
 use Superpayments\SuperPayment\Gateway\Service\ProductSyncService;
 use Throwable;
 
+/**
+ * @phpcs:disable Magento2.Performance.ForeachArrayMerge.ForeachArrayMerge
+ */
 class ProductSyncHandler
 {
     public const EVENT_NAME_UPSERT = 'ProductsUpserted';
@@ -76,7 +79,7 @@ class ProductSyncHandler
                     '[SuperPayments] ProductSyncHandler::syncUpdatedProducts' . $e->getMessage() . "\n" . $e->getTraceAsString()
                 );
             } finally {
-                if ($success) {
+                if (isset($success) && $success) {
                     $overallSuccess = array_merge($overallSuccess, $productIds);
                 } else {
                     $overallFail = array_merge($overallFail, $productIds);

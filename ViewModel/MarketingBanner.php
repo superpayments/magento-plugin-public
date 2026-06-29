@@ -309,8 +309,7 @@ class MarketingBanner implements ArgumentInterface
 
         try {
             $order = $this->checkoutSession->getLastRealOrder();
-            if (
-                $order
+            if ($order
                 && $order->getId()
                 && $order->getPayment()->getMethod() == Config::PAYMENT_CODE
             ) {

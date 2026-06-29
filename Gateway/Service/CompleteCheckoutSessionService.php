@@ -43,8 +43,7 @@ class CompleteCheckoutSessionService implements ApiServiceInterface
     {
         $subject['result'] = $this->dataObjectFactory->create();
 
-        if (
-            !isset($subject['order'])
+        if (!isset($subject['order'])
             || !$subject['order'] instanceof OrderInterface
         ) {
             throw new InvalidArgumentException('Order data object should be provided');
@@ -54,8 +53,7 @@ class CompleteCheckoutSessionService implements ApiServiceInterface
             throw new InvalidArgumentException('Invalid order data object provided');
         }
 
-        if (
-            !isset($subject['payment'])
+        if (!isset($subject['payment'])
             || !$subject['payment'] instanceof OrderPaymentInterface
         ) {
             throw new InvalidArgumentException('Payment data object should be provided');

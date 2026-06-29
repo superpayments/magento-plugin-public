@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Superpayments\SuperPayment\Model\Resolver;
 
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Config\Element\Field;
@@ -13,17 +14,13 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\OrderFactory;
-use Magento\Sales\Model\OrderRepository;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use Superpayments\SuperPayment\Gateway\Config\Config;
 
 class CallbackResolver implements ResolverInterface
 {
-    /** @var OrderFactory */
-    private $orderFactory;
-
-    /** @var OrderRepository $orderRepository */
+    /** @var OrderRepositoryInterface $orderRepository */
     private $orderRepository;
 
     /** @var CartRepositoryInterface */
@@ -38,20 +35,23 @@ class CallbackResolver implements ResolverInterface
     /** @var ManagerInterface */
     private $eventManager;
 
+    /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
+    private $searchCriteriaBuilder;
+
     public function __construct(
-        OrderFactory $orderFactory,
-        OrderRepository $orderRepository,
+        OrderRepositoryInterface $orderRepository,
         CartRepositoryInterface $quoteRepository,
         ManagerInterface $eventManager,
         Config $config,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
-        $this->orderFactory = $orderFactory;
         $this->orderRepository = $orderRepository;
         $this->quoteRepository = $quoteRepository;
         $this->eventManager = $eventManager;
         $this->config = $config;
         $this->logger = $logger;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**
@@ -102,7 +102,14 @@ class CallbackResolver implements ResolverInterface
     private function getOrder(string $orderIncrementId): ?OrderInterface
     {
         try {
-            return $this->orderFactory->create()->loadByIncrementId($orderIncrementId);
+            $searchCriteria = $this->searchCriteriaBuilder
+                ->addFilter('increment_id', $orderIncrementId, 'eq')
+                ->create();
+
+            $orderList = $this->orderRepository->getList($searchCriteria);
+            $items = $orderList->getItems();
+
+            return !empty($items) ? reset($items) : null;
         } catch (NoSuchEntityException $e) {
             return null;
         }
@@ -118,16 +125,14 @@ class CallbackResolver implements ResolverInterface
             );
         }
 
-        if (
-            $order->getState() == Order::STATE_PENDING_PAYMENT
+        if ($order->getState() == Order::STATE_PENDING_PAYMENT
             || $order->getStatus() == Order::STATE_PENDING_PAYMENT
         ) {
             $order->addCommentToStatusHistory(
                 __('Customer has returned to checkout success page. '
                     . 'Payment is delayed or Webhook not received.')
             );
-        } elseif (
-            $order->getState() == Order::STATE_CANCELED
+        } elseif ($order->getState() == Order::STATE_CANCELED
             || $order->getStatus() == Order::STATE_CANCELED
         ) {
             $order->addCommentToStatusHistory(

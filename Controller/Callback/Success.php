@@ -85,8 +85,7 @@ class Success implements ActionInterface, HttpGetActionInterface
             $this->order = $this->checkoutSession->getLastRealOrder();
             $this->checkoutSession->unsLastSuperPaymentRedirect();
 
-            if (
-                !$this->checkoutSession->getLastSuccessQuoteId() ||
+            if (!$this->checkoutSession->getLastSuccessQuoteId() ||
                 !$this->order->getId() ||
                 $this->order->getPayment()->getMethod() !== Config::PAYMENT_CODE
             ) {
@@ -101,16 +100,14 @@ class Success implements ActionInterface, HttpGetActionInterface
                 );
             }
 
-            if (
-                $this->order->getState() == Order::STATE_PENDING_PAYMENT
+            if ($this->order->getState() == Order::STATE_PENDING_PAYMENT
                 || $this->order->getStatus() == Order::STATE_PENDING_PAYMENT
             ) {
                 $this->order->addCommentToStatusHistory(
                     __('Customer has returned to success callback page. '
                         . 'Payment is delayed or Webhook not received.')
                 );
-            } elseif (
-                $this->order->getState() == Order::STATE_CANCELED
+            } elseif ($this->order->getState() == Order::STATE_CANCELED
                 || $this->order->getStatus() == Order::STATE_CANCELED
             ) {
                 $this->order->addCommentToStatusHistory(
@@ -152,8 +149,7 @@ class Success implements ActionInterface, HttpGetActionInterface
     private function isSecondRedirect(): bool
     {
         try {
-            if (
-                $this->checkoutSession->getLastSuccessQuoteId() &&
+            if ($this->checkoutSession->getLastSuccessQuoteId() &&
                 $this->checkoutSession->getLastQuoteId() &&
                 $this->checkoutSession->getLastOrderId() &&
                 $this->checkoutSession->getLastRealOrderId()

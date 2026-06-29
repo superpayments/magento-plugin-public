@@ -45,14 +45,14 @@ class CreateOfferHandler implements HandlerInterface
                 $this->logger->info('[SuperPayment] CreateOfferHandler ' . $this->json->serialize($response['body']));
             }
 
-            if (
+            /*if (
                 isset($subject['quote'])
                 && $subject['quote'] instanceof CartInterface
                 && $subject['quote']->getItemsCount() > 0
                 && $subject['quote']->getId()
             ) {
                 //link the offer as the latest to the quote
-            }
+            }*/
         } catch (Exception $e) {
             $this->logger->error('[SuperPayment] ' . $e->getMessage(), ['exception' => $e]);
             throw new Exception(__($e->getMessage()));

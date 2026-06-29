@@ -231,8 +231,7 @@ class Offerbanner implements ActionInterface, HttpPostActionInterface, CsrfAware
 
             $customerAddresses = $this->quote->getCustomer()->getAddresses();
             foreach ($customerAddresses as $customerAddress) {
-                if (
-                    $customerAddress->isDefaultBilling()
+                if ($customerAddress->isDefaultBilling()
                     && ($telephone = $customerAddress->getTelephone())
                 ) {
                     return $telephone;

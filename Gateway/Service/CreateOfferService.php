@@ -42,8 +42,7 @@ class CreateOfferService implements ApiServiceInterface
     {
         $subject['result'] = $this->dataObjectFactory->create();
 
-        if (
-            !isset($subject['quote'])
+        if (!isset($subject['quote'])
             || !$subject['quote'] instanceof CartInterface
         ) {
             throw new InvalidArgumentException('Quote data object should be provided');

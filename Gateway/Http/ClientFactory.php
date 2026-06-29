@@ -8,6 +8,9 @@ use Magento\Framework\HTTP\LaminasClient;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\ObjectManagerInterface;
 
+/**
+ * @phpcs:disable Magento2.PHP.LiteralNamespaces.LiteralClassUsage
+ */
 class ClientFactory
 {
     /**

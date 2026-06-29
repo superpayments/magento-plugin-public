@@ -8,6 +8,9 @@
                 <value id="stripe-sub" type="host">*.stripe.com</value>
                 <value id="stripe-b-cdn" type="host">b.stripecdn.com</value>
                 <value id="stripe-m-network" type="host">m.stripe.network</value>
+                <value id="sp-adyen-cdn" type="host">https://*.cdn.adyen.com</value>
+                <value id="sp-applepay-cdn" type="host">https://applepay.cdn-apple.com</value>
+                <value id="sp-googlepay" type="host">https://pay.google.com</value>
                 <!-- Segment domains -->
                 <value id="segment-com" type="host">segment.com</value>
                 <value id="segment-sub" type="host">*.segment.com</value>

@@ -243,7 +243,7 @@ class PaymentUpdate
                         '[SP Webhook] Deadlock encountered retrying ..' . $e->getMessage(),
                         ['exception' => $e]
                     );
-                    sleep(2);
+                    sleep(2);  //phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
                     continue;
                 }
                 throw new CouldNotSaveException(

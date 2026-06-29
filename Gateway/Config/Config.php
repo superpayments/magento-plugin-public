@@ -7,6 +7,7 @@ namespace Superpayments\SuperPayment\Gateway\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\DataObject;
+use Magento\Framework\FlagManager;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Payment\Gateway\Config\Config as PaymentsConfig;
 use Magento\Store\Model\ScopeInterface;
@@ -80,6 +81,9 @@ class Config extends PaymentsConfig
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var FlagManager */
+    private $flagManager;
+
     /** @var array */
     private $businessConfigCache = [];
 
@@ -89,6 +93,7 @@ class Config extends PaymentsConfig
         ProductMetadataInterface $productMetadata,
         BusinessConfigService $businessConfigService,
         LoggerInterface $logger,
+        FlagManager $flagManager,
         string $methodCode = self::PAYMENT_CODE,
         string $pathPattern = PaymentsConfig::DEFAULT_PATH_PATTERN
     ) {
@@ -99,6 +104,7 @@ class Config extends PaymentsConfig
         $this->productMetadata = $productMetadata;
         $this->businessConfigService = $businessConfigService;
         $this->logger = $logger;
+        $this->flagManager = $flagManager;
         $this->store = null;
     }
 
@@ -178,8 +184,7 @@ class Config extends PaymentsConfig
 
     private function getBusinessConfigResultLocalCache(): ?DataObject
     {
-        if (
-            isset($this->businessConfigCache[$this->getStoreId()]) &&
+        if (isset($this->businessConfigCache[$this->getStoreId()]) &&
             isset($this->businessConfigCache[$this->getStoreId()][$this->getApiKey()]) &&
             $this->businessConfigCache[$this->getStoreId()][$this->getApiKey()] instanceof DataObject
         ) {
@@ -445,9 +450,11 @@ class Config extends PaymentsConfig
         return (bool) $this->getValue(self::KEY_PRODUCT_SYNC_ENABLED, $this->getStoreId());
     }
 
-    public function isProductFullSyncCompleted(): ?string
+    public function isProductFullSyncCompleted(): bool
     {
-        return $this->getValue(self::KEY_PRODUCT_FULL_SYNC_COMPLETED, $this->getStoreId());
+        $storeId = $this->getStoreId() ?? 0;
+        $flagCode = 'super_payment_gateway/store_' . $storeId . '/' . self::KEY_PRODUCT_FULL_SYNC_COMPLETED;
+        return (bool) $this->flagManager->getFlagData($flagCode);
     }
 
     public function getLoaderContainerId(): ?string

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Superpayments\SuperPayment\Model\ProductSync;
 
+use Magento\Catalog\Api\CategoryRepositoryInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Helper\Data as TaxHelper;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
@@ -15,13 +17,15 @@ use Magento\Review\Model\ResourceModel\Review\Summary as SummaryResource;
 use Magento\Review\Model\Review\SummaryFactory as ReviewSummaryFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Tax\Model\Config as TaxConfig;
+use Psr\Log\LoggerInterface;
+use Throwable;
 
 class ProductDataMapper
 {
-    /** @var CategoryCache */
-    private $categoryCache;
-    /** @var ProductCache */
-    private $productCache;
+    /** @var CategoryRepositoryInterface */
+    private $categoryRepository;
+    /** @var ProductRepositoryInterface */
+    private $productRepository;
     /** @var StoreManagerInterface */
     private $storeManager;
     /** @var TaxHelper */
@@ -36,20 +40,23 @@ class ProductDataMapper
     private $summaryResource;
     /** @var ConfigurableType */
     private $configurableType;
+    /** @var LoggerInterface */
+    private $logger;
 
     public function __construct(
-        CategoryCache $categoryCache,
-        ProductCache $productCache,
+        CategoryRepositoryInterface $categoryRepository,
+        ProductRepositoryInterface $productRepository,
         StoreManagerInterface $storeManager,
         TaxHelper $taxHelper,
         TaxConfig $taxConfig,
         MediaConfig $mediaConfig,
         ReviewSummaryFactory $reviewSummaryFactory,
         SummaryResource $summaryResource,
-        ConfigurableType $configurableType
+        ConfigurableType $configurableType,
+        LoggerInterface $logger
     ) {
-        $this->categoryCache = $categoryCache;
-        $this->productCache = $productCache;
+        $this->categoryRepository = $categoryRepository;
+        $this->productRepository = $productRepository;
         $this->storeManager = $storeManager;
         $this->taxHelper = $taxHelper;
         $this->taxConfig = $taxConfig;
@@ -57,6 +64,7 @@ class ProductDataMapper
         $this->reviewSummaryFactory = $reviewSummaryFactory;
         $this->summaryResource = $summaryResource;
         $this->configurableType = $configurableType;
+        $this->logger = $logger;
     }
 
     public function mapUpsert(Product $product, int $storeId): array
@@ -69,7 +77,7 @@ class ProductDataMapper
             $parentIds = $this->configurableType->getParentIdsByChild($product->getId());
             if (!empty($parentIds)) {
                 $parentId = (int) array_shift($parentIds);
-                $parentData = $this->productCache->getProductData($parentId, $storeId);
+                $parentData = $this->getParentProductData($parentId, $storeId);
                 $parentSku = $parentData['sku'];
                 $parentUrl = $parentData['url'];
             }
@@ -78,8 +86,9 @@ class ProductDataMapper
         // - Categories
         $categories = [];
         foreach ($product->getCategoryIds() as $catId) {
-            if ($cat = $this->categoryCache->getCategoryData((int) $catId)) {
-                $categories[] = $cat['name'];
+            $categoryName = $this->getCategoryName((int) $catId, $storeId);
+            if ($categoryName !== null) {
+                $categories[] = $categoryName;
             }
         }
 
@@ -152,5 +161,35 @@ class ProductDataMapper
     private function cleanText(?string $text): ?string
     {
         return $text ? strip_tags($text) : null;
+    }
+
+    private function getParentProductData(int $productId, int $storeId): array
+    {
+        try {
+            $parent = $this->productRepository->getById($productId, false, $storeId);
+            return [
+                'sku' => $parent->getSku(),
+                'url' => $parent->getUrlModel()->getUrl($parent, ['_store' => $storeId]),
+            ];
+        } catch (Throwable $e) {
+            $this->logger->error(
+                "[SuperPayments] ProductDataMapper failed to load parent product $productId for store $storeId: " .
+                $e->getMessage()
+            );
+            return ['sku' => null, 'url' => null];
+        }
+    }
+
+    private function getCategoryName(int $categoryId, int $storeId): ?string
+    {
+        try {
+            return $this->categoryRepository->get($categoryId, $storeId)->getName();
+        } catch (Throwable $e) {
+            $this->logger->error(
+                "[SuperPayments] ProductDataMapper failed to load category $categoryId for store $storeId: " .
+                $e->getMessage()
+            );
+            return null;
+        }
     }
 }

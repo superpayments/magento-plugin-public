@@ -50,8 +50,7 @@ class ReturnFundsService implements ApiServiceInterface
     {
         $subject['result'] = $this->dataObjectFactory->create();
 
-        if (
-            !isset($subject['order'])
+        if (!isset($subject['order'])
             || !$subject['order'] instanceof OrderInterface
         ) {
             throw new InvalidArgumentException('Order data object should be provided');
@@ -62,8 +61,7 @@ class ReturnFundsService implements ApiServiceInterface
         }
 
         $payment = $subject['order']->getPayment();
-        if (
-            empty($payment)
+        if (empty($payment)
             || !$payment instanceof InfoInterface
         ) {
             throw new InvalidArgumentException('Payment model should be provided');

@@ -42,8 +42,7 @@ class CreateCheckoutSessionService implements ApiServiceInterface
     {
         $subject['result'] = $this->dataObjectFactory->create();
 
-        if (
-            !isset($subject['store'])
+        if (!isset($subject['store'])
             || !$subject['store'] instanceof StoreInterface
         ) {
             throw new InvalidArgumentException('Store data object should be provided');

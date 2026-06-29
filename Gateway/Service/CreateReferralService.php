@@ -42,8 +42,7 @@ class CreateReferralService implements ApiServiceInterface
     {
         $subject['result'] = $this->dataObjectFactory->create();
 
-        if (
-            !isset($subject['order'])
+        if (!isset($subject['order'])
             || !$subject['order'] instanceof OrderInterface
         ) {
             throw new InvalidArgumentException('Order data object should be provided');

@@ -32,10 +32,11 @@ class FullSyncCommand extends Command
         parent::configure();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln('<info>Starting: Superpayments product full sync.</info>');
         $this->productSyncFullSync->execute();
         $output->writeln('<info>Completed: Superpayments product full sync.</info>');
+        return Command::SUCCESS;
     }
 }

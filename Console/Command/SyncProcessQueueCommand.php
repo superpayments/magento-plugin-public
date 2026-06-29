@@ -36,10 +36,11 @@ class SyncProcessQueueCommand extends Command
         parent::configure();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln('<info>Starting: Superpayments product sync send queue.</info>');
         $this->productSyncSendQueue->execute();
         $output->writeln('<info>Completed: Superpayments product sync send queue.</info>');
+        return Command::SUCCESS;
     }
 }
