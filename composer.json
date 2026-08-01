@@ -3,7 +3,7 @@
     "description": "SuperPayments Payment for Magento 2",
     "type": "magento2-module",
     "require": {
-        "php": ">=8.2.30",
+        "php": ">=8.2.33",
         "magento/module-checkout": ">=100",
         "magento/module-payment": ">=100",
         "magento/module-sales": ">=100",
