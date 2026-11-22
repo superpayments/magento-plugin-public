@@ -5,7 +5,7 @@
     </head>
     <body>
         <referenceContainer name="product.info.main">
-            <block class="Magento\Catalog\Block\Product\View" ifconfig="payment/super_payment_gateway/active" template="Superpayments_SuperPayment::marketing/super-product-callout-pdp.phtml" after="product.info.price">
+            <block class="Magento\Catalog\Block\Product\View" name="super_marketing_pdp_banner" ifconfig="payment/super_payment_gateway/active" template="Superpayments_SuperPayment::marketing/super-product-callout-pdp.phtml" after="product.info.price">
                 <arguments>
                     <argument name="view_model" xsi:type="object">Superpayments\SuperPayment\ViewModel\MarketingBanner
                     </argument>
